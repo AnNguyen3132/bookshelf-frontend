@@ -4,6 +4,7 @@ import { ref, toRaw } from "vue";
 import { useRouter } from "vue-router";
 import UserServices from "../services/UserServices.js";
 
+const confirmPassword = ref('')
 const router = useRouter();
 const isCreateAccount = ref(false);
 const snackbar = ref({
@@ -30,11 +31,18 @@ function navigateToRecipes() {
 }
 
 async function createAccount() {
+  if(user.value.password !== confirmPassword.value) {
+    snackbar.value.value = true;
+    snackbar.value.color = "error";
+    snackbar.value.text = "Password Does Not Match";
+    return;
+  }
   await UserServices.addUser(user.value)
     .then(() => {
       snackbar.value.value = true;
       snackbar.value.color = "green";
       snackbar.value.text = "Account created successfully!";
+      isCreateAccount.value = false;
       router.push({ name: "login" });
     })
     .catch((error) => {
@@ -45,6 +53,7 @@ async function createAccount() {
     });
 }
 
+
 async function login() {
   await UserServices.loginUser(user)
     .then((data) => {
@@ -52,7 +61,7 @@ async function login() {
       snackbar.value.value = true;
       snackbar.value.color = "green";
       snackbar.value.text = "Login successful!";
-      router.push({ name: "recipes" });
+      router.push({ name: "Account" });
     })
     .catch((error) => {
       console.log(error);
@@ -73,6 +82,7 @@ function closeCreateAccount() {
 function closeSnackBar() {
   snackbar.value.value = false;
 }
+
 </script>
 
 <template>
@@ -130,6 +140,13 @@ function closeSnackBar() {
               label="Password"
               required
             ></v-text-field>
+
+            <v-text-field
+              v-model="confirmPassword"
+              label="Confirm Password"
+              required
+            ></v-text-field>
+
           </v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
