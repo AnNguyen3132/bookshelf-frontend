@@ -29,29 +29,55 @@ function logout() {
 }
 </script>
 
+<script>
+export default {
+  name: 'MenuControl',
+  data() {
+    return {
+      menuVisible: false
+    };
+  }
+};
+</script>
+
 <template>
   <div>
     <v-app-bar color="primary" app dark>
-      <router-link :to="{ name: 'recipes' }">
-        <v-img
-          class="mx-2"
-          :src="logoURL"
-          height="50"
-          width="50"
-          contain
-        ></v-img>
-      </router-link>
-      <v-toolbar-title class="title">
-        {{ title }}
-      </v-toolbar-title>
+      <v-btn class="mx-2" :to="{ name: 'Recommendations' }"> Get Recommendations </v-btn>
+      <v-btn class="mx-2" :to="{ name: 'Wishlist' }"> Wishlist </v-btn>
+      <v-btn class="mx-2" :to="{ name: 'OwnedBooks' }"> OwnedBooks </v-btn>
+      <v-btn class="mx-2" :to="{ name: 'Search' }"> Search </v-btn>
       <v-spacer></v-spacer>
-      <v-btn class="mx-2" :to="{ name: 'recipes' }"> Recipes </v-btn>
-      <v-btn v-if="user === null" class="mx-2" :to="{ name: 'login' }">
-        Login
-      </v-btn>
-      <v-btn v-if="user !== null" class="mx-2" :to="{ name: 'ingredients' }">
-        Ingredients
-      </v-btn>
+
+      <v-menu v-model="menuVisible" offset-y>
+        <template #activator="{ props }">
+          <v-btn icon v-bind="props">
+            <v-icon>mdi-menu</v-icon>
+          </v-btn>
+        </template>
+
+        <v-list>
+          <v-list-item :to="{ name: 'Account' }" link>
+            <v-list-item-title>Account</v-list-item-title>
+          </v-list-item>
+          <v-list-item :to="{ name: 'BookDatabasePage' }" link>
+            <v-list-item-title>Book Database</v-list-item-title>
+          </v-list-item>
+          <v-list-item :to="{ name: 'AuthorDatabasePage' }" link>
+            <v-list-item-title>Author Database</v-list-item-title>
+          </v-list-item>
+          <v-list-item :to="{ name: 'GenreDatabasePage' }" link>
+            <v-list-item-title>Genre Database</v-list-item-title>
+          </v-list-item>
+          <v-list-item :to="{ name: 'UserDatabasePage' }" link>
+            <v-list-item-title>User Database</v-list-item-title>
+          </v-list-item>
+          <v-list-item :to="{ name: 'Recommendations' }" link>
+            <v-list-item-title>Logout</v-list-item-title>
+          </v-list-item>
+        </v-list>
+      </v-menu>
+
       <v-menu v-if="user !== null" min-width="200px" rounded>
         <template v-slot:activator="{ props }">
           <v-btn icon v-bind="props">
