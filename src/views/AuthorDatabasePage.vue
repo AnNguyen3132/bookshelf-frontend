@@ -7,7 +7,7 @@ import AuthorServices from "../services/AuthorServices.js";
 const Authors = ref([])
 const selectedAuthor = ref({})
 const isUpdateAuthor = ref(false);
-const addAuthorBool = ref(false);
+const addAuthorCheck = ref(false);
 const snackbar = ref({
   value: false,
   color: "",
@@ -75,8 +75,8 @@ async function fetchAuthors() {
 }
 
 function openUpdateAuthor(Author, addAuthor) {
-  addAuthorBool.value = addAuthor;
-  if(addAuthorBool.value) {
+  addAuthorCheck.value = addAuthor;
+  if(addAuthorCheck.value) {
     selectedAuthor.value = {};
   } else {
     selectedAuthor.value = {...Author}
@@ -97,10 +97,10 @@ function closeSnackBar() {
   <h1 class="title">Author Database</h1>
    <v-container>
     <v-row v-for="(author, index) in Authors" :key="index" class="mb-2">
-      <v-col cols="2" class = "cursor-pointer" @click="openUpdateAuthor(author)">ID: {{ author.id }}</v-col>
-      <v-col cols="2" class = "cursor-pointer" @click="openUpdateAuthor(author)">First Name: {{ author.firstName }}</v-col>
-      <v-col cols="2" class = "cursor-pointer" @click="openUpdateAuthor(author)">Middle Name: {{ author.middleName }}</v-col>
-      <v-col cols="2" class = "cursor-pointer" @click="openUpdateAuthor(author)">Last Name: {{ author.lastName }}</v-col>
+      <v-col cols="2" class = "cursor-pointer" @click="openUpdateAuthor(author, false)">ID: {{ author.id }}</v-col>
+      <v-col cols="2" class = "cursor-pointer" @click="openUpdateAuthor(author, false)">First Name: {{ author.firstName }}</v-col>
+      <v-col cols="2" class = "cursor-pointer" @click="openUpdateAuthor(author, false)">Middle Name: {{ author.middleName }}</v-col>
+      <v-col cols="2" class = "cursor-pointer" @click="openUpdateAuthor(author, false)">Last Name: {{ author.lastName }}</v-col>
       <v-col cols="1" >
       <v-icon color="red" class="cursor-pointer" @click="openUpdateAuthor(author, false)"> mdi-pencil </v-icon>
       </v-col>
@@ -148,10 +148,10 @@ function closeSnackBar() {
             @click="closeUpdateAuthor()"
             >Close</v-btn
           >
-          <v-btn v-if="!addAuthorBool" variant="flat" color="primary" @click="updateAuthor(selectedAuthor.id, selectedAuthor)"
+          <v-btn v-if="!addAuthorCheck" variant="flat" color="primary" @click="updateAuthor(selectedAuthor.id, selectedAuthor)"
             >Update Author</v-btn
           >
-          <v-btn v-if="addAuthorBool" variant="flat" color="primary" @click="addAuthor(selectedAuthor)"
+          <v-btn v-if="addAuthorCheck" variant="flat" color="primary" @click="addAuthor(selectedAuthor)"
             >Add Author</v-btn
           >
         </v-card-actions>
