@@ -37,6 +37,17 @@ async function deleteUser(id) {
 };
 
 async function updateUser(id, User) {
+
+  const isEmptyField = Object.values(User).some(
+    (value) => value === null || value === '' || value === undefined
+  );
+
+  if (isEmptyField) {
+    snackbar.value.value = true;
+    snackbar.value.color = "red";
+    snackbar.value.text = "All fields must be filled.";
+    return; 
+  }
   await UserServices.updateUser(id, User)
     .then(() => {
       fetchUsers()
