@@ -37,6 +37,16 @@ async function createAccount() {
     snackbar.value.text = "Password Does Not Match";
     return;
   }
+  const isEmptyField = Object.values(user.value).some(
+    (value) => value === null || value === '' || value === undefined
+  );
+
+  if (isEmptyField) {
+    snackbar.value.value = true;
+    snackbar.value.color = "red";
+    snackbar.value.text = "All fields must be filled.";
+    return; 
+  }
   await UserServices.addUser(user.value)
     .then(() => {
       snackbar.value.value = true;
