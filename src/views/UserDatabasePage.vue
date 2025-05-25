@@ -1,7 +1,6 @@
 <template>
   <h1 class="title">User Database</h1>
 </template>
-
 <script>
 export default {
   name: 'UserDatabasePageHeader'

@@ -1,13 +1,22 @@
 <template>
-  <h1 class="title">Search Page</h1>
+  <TableComponent/>
 </template>
-
-<script>
-export default {
-  name: 'SearchPageHeader'
-};
+<script setup>
+import TableComponent from "../components/TableComponent.vue";
+// const books = ref([]);
+// onMounted(async () => {
+//   await getBooks();
+// });
+// async function getBooks() {
+//   await BookService.getBooks()
+//     .then((response) => {
+//       books.value = response.data;
+//     })
+//     .catch((error) => {
+//       console.log(error);
+//     });
+// }
 </script>
-
 <style scoped>
 .title {
   text-align: center;
