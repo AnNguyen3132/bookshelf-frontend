@@ -18,9 +18,17 @@ onMounted(async () => {
   try {
     fetchOwnedBooks()
 
-    const response = await fetch("http://localhost/bookshelfapi/ReadingStatusTypes");//leaving this here for now, will mod later when adding the true combo box
-    const data = await response.json();
-    statusOptions.value = data;
+    //const response = await fetch("http://localhost/bookshelfapi/ReadingStatusTypes");//leaving this here for now, will mod later when adding the true combo box
+    // const data = await response.json();
+    // statusOptions.value = data;
+
+    statusOptions.value = [
+      { id: 1, statusName: "To Read" },
+      { id: 2, statusName: "Reading" },
+      { id: 3, statusName: "Finished" },
+      { id: 4, statusName: "Abandoned" }
+    ];
+
 
   } catch (error) {
     console.error("Cannot Fetch Owned Books: ", error)
@@ -43,23 +51,19 @@ async function deleteOwnedBook(id) {
 };
 
 async function updateOwnedBook(ownedBookId, ownedBook) {
-  let statusId = null;
-  
-  if (statusNameInput.value == "To Read") {
-    statusId = 1;
-  } else if (statusNameInput.value == "Reading") {
-    statusId = 2;
-  } else if (statusNameInput.value == "Finished") {
-    statusId = 3;
-  } else if (statusNameInput.value == "Abandoned") {
-    statusId = 4;
-  } else {
+  const selectedStatus = statusOptions.value.find(
+    option => option.statusName === statusNameInput.value
+  );
+
+  if (!selectedStatus) {
     snackbar.value.text = "Invalid reading status. Please choose a valid option.";
     snackbar.value.color = "red";
     snackbar.value.value = true;
     return;
   }
 
+  const statusId = selectedStatus.id;
+  
   const updatePayload = {
     ...ownedBook,
     title: ownedBook.book?.title,
@@ -84,12 +88,25 @@ async function updateOwnedBook(ownedBookId, ownedBook) {
 };
 
 async function addOwnedBook(book) {
+  const selectedStatus = statusOptions.value.find(
+    option => option.statusName === statusNameInput.value
+  );
+
+  if (!selectedStatus) {
+    snackbar.value.text = "Invalid reading status. Please choose a valid option.";
+    snackbar.value.color = "red";
+    snackbar.value.value = true;
+    return;
+  }
+
+  const statusId = selectedStatus.id;
+
   const addPayload = {
     ...book,
     title: book.book?.title,
     link: book.book?.link,
     numPages: book.book?.numPages,
-    ReadingStatusTypesid: book.ReadingStatusTypesid
+    ReadingStatusTypesid: statusId
   };
 
   await OwnedBooksServices.addOwnedBook(addPayload)
@@ -115,16 +132,31 @@ async function fetchOwnedBooks() {
 
 function openUpdateOwnedBook(ownedBook, addOwnedBook) {
   addOwnedBookCheck.value = addOwnedBook;
+    
   if(addOwnedBookCheck.value) {
     selectedOwnedBook.value = {
-      book: {},
-      ReadingStatusTypesid: null
+      book: {
+        title: '',
+        numPages: '',
+        link: ''
+      },
+      paidAmount: '',
+      dateBought: '',
+      userNotes: '',
+      ReadingStatusTypesid: null,
+      ReadingStatusType: { statusName: '' }
     };
+    statusNameInput.value = 'To Read';
   } else {
-    selectedOwnedBook.value = JSON.parse(JSON.stringify(ownedBook));
-  }
+    // Clone and normalize Book to book
+    const cloned = JSON.parse(JSON.stringify(ownedBook));
+    selectedOwnedBook.value = {
+      ...cloned,
+      book: cloned.Book ?? cloned.book,
+    };
+    statusNameInput.value = cloned.ReadingStatusType?.statusName || "";
+}
   isUpdateOwnedBook.value = true;
-  statusNameInput.value = ownedBook.ReadingStatusType?.statusName || "";
 }
 
 function closeUpdateOwnedBook() {
@@ -165,21 +197,22 @@ function closeSnackBar() {
 
     <v-dialog persistent v-model="isUpdateOwnedBook" width="800">
       <v-card class="rounded-lg elevation-5">
-        <v-card-title class="headline mb-2">Update Book Details</v-card-title>
-        <v-card-text>
+        <v-card-title class="headline mb-2">
+          {{ addOwnedBookCheck ? 'Book Details' : 'Update Book Details' }}
+        </v-card-title>        <v-card-text>
           <v-text-field
-            v-model="selectedOwnedBook.Book.title"
+            v-model="selectedOwnedBook.book.title"
             label="Title"
             required
           ></v-text-field>
 
           <v-text-field
-            v-model="selectedOwnedBook.Book.numPages"
+            v-model="selectedOwnedBook.book.numPages"
             label="Number of Pages"
           ></v-text-field>
 
           <v-text-field
-            v-model="selectedOwnedBook.Book.link"
+            v-model="selectedOwnedBook.book.link"
             label="Amazon Link"
           ></v-text-field>
 
@@ -196,9 +229,8 @@ function closeSnackBar() {
 
           <v-combobox
             v-model="statusNameInput"
-            :items="statusOptions"
+            :items="statusOptions.map(option => option.statusName)"
             item-title="statusName"
-            item-value="statusNameInput"
             label="Reading Status"
             clearable
           />
