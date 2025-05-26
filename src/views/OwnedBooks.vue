@@ -26,7 +26,7 @@ onMounted(async () => {
       { id: 1, statusName: "To Read" },
       { id: 2, statusName: "Reading" },
       { id: 3, statusName: "Finished" },
-      { id: 4, statusName: "Abandoned" }
+      { id: 4, statusName: "DNF" }
     ];
 
 
