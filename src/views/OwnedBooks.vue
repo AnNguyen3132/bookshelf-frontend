@@ -28,7 +28,6 @@ onMounted(async () => {
 });
 
 async function deleteOwnedBook(id) {
-  console.log("Deleting ID:", id);
   await OwnedBooksServices.deleteOwnedBook(id)
     .then(() => {
       snackbar.value.value = true;
