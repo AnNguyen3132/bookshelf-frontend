@@ -1,8 +1,14 @@
 <template>
+  <v-text-field
+    v-model="searchQuery"
+    label="Search"
+    required
+  ></v-text-field>
   <TableComponent/>
 </template>
 <script setup>
 import TableComponent from "../components/TableComponent.vue";
+import { ref } from "vue";
 // const books = ref([]);
 // onMounted(async () => {
 //   await getBooks();
@@ -16,6 +22,7 @@ import TableComponent from "../components/TableComponent.vue";
 //       console.log(error);
 //     });
 // }
+const searchQuery = ref('');
 </script>
 <style scoped>
 .title {

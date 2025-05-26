@@ -7,11 +7,11 @@ onMounted(async () => {
   await getBooks();
 });
 
-// const props = defineProps({
-//   data: Array,
-//   columns: Array,
-//   filterKey: String
-// })
+const props = defineProps({
+  // data: Array,
+  // columns: Array,
+  filterKey: String
+})
 
 // const sortKey = ref('')
 // const sortOrders = ref(
@@ -57,23 +57,33 @@ async function getBooks() {
 </script>
 
 <template>
-  <h2 class="title">Test</h2>
+  <h2 class="title">Book Search</h2>
   <v-table>
       <thead>
         <tr>
           <th class="text-left">Title</th>
           <th class="text-left">Author</th>
           <th class="text-left">Publication Date</th>
+          <th class="text-left">Publisher</th>
           <th class="text-left">Genre</th>
+          <th class="text-left">Action</th>
         </tr>
       </thead>
     <tbody>
       <tr v-for="book in books" :key="book.id">
         <td>{{ book.Title }}</td>
-        <td>test</td>
+        <td v-if="book.authors.length == 1">{{ `${book.authors[0].FirstName} ${book.authors[0].LastName}` }}</td>
+        <td v-else-if="book.authors.length > 1">{{ `${book.authors[0].FirstName} ${book.authors[0].LastName}...` }}</td>
+        <td v-else>{{ `No Author Listed` }}</td>
         <td>{{ book.PublicationDate }}</td>
+        <td v-if="book.publishers.length == 1">{{ `${book.publishers[0].Name}` }}</td>
+        <td v-else-if="book.publishers.length > 1">{{ `${book.publishers[0].Name}...` }}</td>
+        <td v-else>{{ `No Publisher Listed` }}</td>
+        <td v-if="book.genres.length == 1">{{ `${book.genres[0].Descriptor}` }}</td>
+        <td v-else-if="book.genres.length > 1">{{ `${book.genres[0].Descriptor}...` }}</td>
+        <td v-else>{{ `No Genre Listed` }}</td>
         <td>
-          Test
+          Wishlist | Own | View
         </td>
       </tr>
     </tbody>
