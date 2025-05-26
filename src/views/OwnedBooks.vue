@@ -18,7 +18,7 @@ onMounted(async () => {
   try {
     fetchOwnedBooks()
 
-    const response = await fetch("http://localhost/bookshelfapi/ReadingStatusTypes");
+    const response = await fetch("http://localhost/bookshelfapi/ReadingStatusTypes");//leaving this here for now, will mod later when adding the true combo box
     const data = await response.json();
     statusOptions.value = data;
 
@@ -202,10 +202,6 @@ function closeSnackBar() {
             label="Reading Status"
             clearable
           />
-          <!-- <v-text-field
-            v-model="selectedOwnedBook.ReadingStatusType.statusName"
-            label="Reading Status"
-          ></v-text-field>           -->
 
           <v-text-field
             v-model="selectedOwnedBook.userNotes"
@@ -243,7 +239,6 @@ function closeSnackBar() {
         </v-btn>
       </template>
     </v-snackbar>
-    <!-- <pre>{{ JSON.stringify(OwnedBooks, null, 2) }}</pre> -->
   </v-container>
 </template>
 
