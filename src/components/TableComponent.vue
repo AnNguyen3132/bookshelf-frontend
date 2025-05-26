@@ -3,6 +3,13 @@ import {  onMounted, ref } from "vue";
 import BookService from "../services/BookServices.js";
 
 const books = ref([]);
+const selectedItem = ref({})
+const isView = ref(false);
+const snackbar = ref({
+  value: false,
+  color: "",
+  text: "",
+});
 onMounted(async () => {
   await getBooks();
 });
@@ -45,6 +52,17 @@ const props = defineProps({
 // function capitalize(str) {
 //   return str.charAt(0).toUpperCase() + str.slice(1)
 // }
+function openViewer(book) {
+  selectedItem.value = {...book}
+  isView.value = true;
+}
+function closeViewer() {
+  isView.value = false;
+}
+function closeSnackBar() {
+  snackbar.value.value = false;
+}
+
 async function getBooks() {
   await BookService.getBooks()
     .then((response) => {
@@ -83,11 +101,101 @@ async function getBooks() {
         <td v-else-if="book.genres.length > 1">{{ `${book.genres[0].Descriptor}...` }}</td>
         <td v-else>{{ `No Genre Listed` }}</td>
         <td>
-          Wishlist | Own | View
+          <v-icon color="red" class="cursor-pointer" @click="alert('Update when Wishlist Book is in system')"> mdi-bag-checked </v-icon>
+          |
+          <v-icon color="red" class="cursor-pointer" @click="alert('Update when Owned Book is in system')"> mdi-bookshelf </v-icon>
+          |
+          <v-icon color="red" class="cursor-pointer" @click="openViewer(book)"> mdi-eye </v-icon>
         </td>
       </tr>
     </tbody>
   </v-table>
+  <v-dialog persistent v-model="isView" width="800">
+      <v-card class="rounded-lg elevation-5">
+        <v-card-title class="headline mb-2">Book Info</v-card-title>
+        <v-card-text>
+          <v-text-field
+            v-model="selectedItem.Title"
+            label="Title"
+            readonly
+          ></v-text-field>
+          <v-combobox
+            v-model="selectedItem.authors"
+            :items="selectedItem.authors"
+            label="Authors"
+            chips
+            multiple
+            disabled
+          >
+            <template v-slot:chip="{ props, item }">
+              <v-chip v-bind="props"
+                label
+              >
+                <strong>{{ item.value.FirstName + " " + item.value.LastName }}</strong>&nbsp;
+              </v-chip>
+            </template>
+          </v-combobox>
+          <v-text-field
+            v-model="selectedItem.PublicationDate"
+            label="Publish Date"
+            readonly
+          ></v-text-field>
+          <v-combobox
+            v-model="selectedItem.publishers"
+            :items="selectedItem.publishers"
+            label="Publishers"
+            chips
+            multiple
+            disabled
+          >
+            <template v-slot:chip="{ props, item }">
+              <v-chip v-bind="props"
+                label
+              >
+                <strong>{{ item.value.Name}}</strong>&nbsp;
+              </v-chip>
+            </template>
+          </v-combobox>
+          <v-combobox
+            v-model="selectedItem.genres"
+            :items="selectedItem.genres"
+            label="Genres"
+            chips
+            multiple
+            disabled
+          >
+            <template v-slot:chip="{ props, item }">
+              <v-chip v-bind="props"
+                label
+              >
+                <strong>{{ item.value.Descriptor }}</strong>&nbsp;
+              </v-chip>
+            </template>
+          </v-combobox>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn
+            variant="flat"
+            color="secondary"
+            @click="closeViewer()"
+            >Close</v-btn
+          >
+        </v-card-actions>
+      </v-card>
+  </v-dialog>
+    <v-snackbar v-model="snackbar.value" rounded="pill">
+      {{ snackbar.text }}
+      <template v-slot:actions>
+        <v-btn
+          :color="snackbar.color"
+          variant="text"
+          @click="closeSnackBar()"
+        >
+          Close
+        </v-btn>
+      </template>
+    </v-snackbar>
 </template>
 
 <style scoped>
