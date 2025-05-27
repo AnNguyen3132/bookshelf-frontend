@@ -1,5 +1,5 @@
 <script setup>
-import {  onMounted, ref, computed } from "vue";
+import { ref, computed } from "vue";
 import BookService from "../services/BookServices.js";
 
 const books = ref([]);
@@ -9,9 +9,6 @@ const snackbar = ref({
   value: false,
   color: "",
   text: "",
-});
-onMounted(async () => {
-  await getBooks();
 });
 
 const props = defineProps({
@@ -98,16 +95,6 @@ function closeViewer() {
 }
 function closeSnackBar() {
   snackbar.value.value = false;
-}
-
-async function getBooks() {
-  await BookService.getBooks()
-    .then((response) => {
-      books.value = response.data;
-    })
-    .catch((error) => {
-      console.log(error);
-    });
 }
 </script>
 
