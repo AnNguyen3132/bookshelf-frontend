@@ -1,5 +1,5 @@
 <script setup>
-import {  onMounted, ref } from "vue";
+import {  onMounted, ref, computed } from "vue";
 import BookService from "../services/BookServices.js";
 
 const books = ref([]);
@@ -15,43 +15,47 @@ onMounted(async () => {
 });
 
 const props = defineProps({
-  // data: Array,
-  // columns: Array,
+  data: Array,
+  columns: Array,
   filterKey: String
 })
 
-// const sortKey = ref('')
-// const sortOrders = ref(
-//   props.columns.reduce((o, key) => ((o[key] = 1), o), {})
-// )
-// const filteredData = computed(() => {
-//   let { data, filterKey } = props
-//   if (filterKey) {
-//     filterKey = filterKey.toLowerCase()
-//     data = data.filter((row) => {
-//       return Object.keys(row).some((key) => {
-//         return String(row[key]).toLowerCase().indexOf(filterKey) > -1
-//       })
-//     })
-//   }
-//   const key = sortKey.value
-//   if (key) {
-//     const order = sortOrders.value[key]
-//     data = data.slice().sort((a, b) => {
-//       a = a[key]
-//       b = b[key]
-//       return (a === b ? 0 : a > b ? 1 : -1) * order
-//     })
-//   }
-//   return data
-// })
-// function sortBy(key) {
-//   sortKey.value = key
-//   sortOrders.value[key] *= -1
-// }
-// function capitalize(str) {
-//   return str.charAt(0).toUpperCase() + str.slice(1)
-// }
+const sortKey = ref('')
+const sortOrders = ref(
+  props.columns.reduce((o, key) => ((o[key] = 1), o), {})
+)
+const filteredData = computed(() => {
+  let { data, filterKey } = props
+  console.log(filterKey);
+  if (filterKey) {
+    filterKey = filterKey.toLowerCase()
+    data = data.filter((row) => {
+      return Object.keys(row).some((key) => {
+        return String(row[key]).toLowerCase().indexOf(filterKey) > -1
+      })
+    })
+  }
+  if(!sortKey.value.includes('*')){
+    const key = sortKey.value
+    if (key) {
+      const order = sortOrders.value[key]
+      data = data.slice().sort((a, b) => {
+        a = a[key]
+        b = b[key]
+        return (a === b ? 0 : a > b ? 1 : -1) * order
+      })
+    }
+  }
+  console.log(data);
+  return data
+})
+function sortBy(key) {
+  sortKey.value = key
+  sortOrders.value[key] *= -1
+}
+function capitalize(str) {
+  return str.charAt(0).toUpperCase() + str.slice(1)
+}
 function openViewer(book) {
   selectedItem.value = {...book}
   isView.value = true;
@@ -76,7 +80,7 @@ async function getBooks() {
 
 <template>
   <h2 class="title">Book Search</h2>
-  <v-table>
+  <v-table v-if="filteredData.length">
       <thead>
         <tr>
           <th class="text-left">Title</th>
@@ -88,7 +92,7 @@ async function getBooks() {
         </tr>
       </thead>
     <tbody>
-      <tr v-for="book in books" :key="book.id">
+      <tr v-for="book in filteredData" :key="book.id">
         <td>{{ book.Title }}</td>
         <td v-if="book.authors.length == 1">{{ `${book.authors[0].FirstName} ${book.authors[0].LastName}` }}</td>
         <td v-else-if="book.authors.length > 1">{{ `${book.authors[0].FirstName} ${book.authors[0].LastName}...` }}</td>
@@ -110,6 +114,7 @@ async function getBooks() {
       </tr>
     </tbody>
   </v-table>
+  <p v-else>No matches found.</p>
   <v-dialog persistent v-model="isView" width="800">
       <v-card class="rounded-lg elevation-5">
         <v-card-title class="headline mb-2">Book Info</v-card-title>
