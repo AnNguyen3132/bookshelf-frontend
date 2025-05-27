@@ -26,12 +26,30 @@ const sortOrders = ref(
 )
 const filteredData = computed(() => {
   let { data, filterKey } = props
-  console.log(filterKey);
   if (filterKey) {
     filterKey = filterKey.toLowerCase()
     data = data.filter((row) => {
       return Object.keys(row).some((key) => {
-        return String(row[key]).toLowerCase().indexOf(filterKey) > -1
+        let value = '';
+        if(key === 'authors'){
+          row[key].forEach(element => {
+            value += element.FirstName + element.LastName;
+          });
+        }
+        else if(key === 'genres'){
+          row[key].forEach(element => {
+            value += element.Descriptor;
+          });
+        }
+        else if(key === 'publishers'){
+          row[key].forEach(element => {
+            value += element.Name;
+          });
+        }
+        else{
+          value = String(row[key]);
+        }
+        return value.toLowerCase().indexOf(filterKey) > -1
       })
     })
   }
@@ -46,7 +64,22 @@ const filteredData = computed(() => {
       })
     }
   }
-  console.log(data);
+  else if(sortKey.value === '*Authors'){
+    const order = sortOrders.value[key]
+      data = data.slice().sort((a, b) => {
+        let valueA = '';
+        let valueB = '';
+        a['authors'].array.forEach(element => {
+          valueA += element.FirstName + element.LastName;
+        });
+        a = valueA;
+        b['authors'].array.forEach(element => {
+          valueB += element.FirstName + element.LastName;
+        });
+        b = valueB;
+        return (a === b ? 0 : a > b ? 1 : -1) * order
+      })
+  }
   return data
 })
 function sortBy(key) {
