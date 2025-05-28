@@ -2,18 +2,18 @@ import apiClient from "./services";
 
 export default {
   getBooks() {
-    return apiClient.get("books");
+    return apiClient.get("Books");
   },
   getBook(id) {
-    return apiClient.get("books/" + id);
+    return apiClient.get(`Book/:${id}`);
   },
   addBook(book) {
-    return apiClient.post("books", book);
+    return apiClient.post("Books/", book);
   },
   updateBook(book) {
-    return apiClient.put("books/" + book.id, book);
+    return apiClient.put(`Books/:${book.id}`, book);
   },
   deleteBook(bookId) {
-    return apiClient.delete("books/" +bookId);
+    return apiClient.delete(`Books/:${bookId}`);
   },
 };
