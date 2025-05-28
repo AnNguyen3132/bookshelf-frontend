@@ -1,6 +1,6 @@
 <script setup>
 import { onMounted } from 'vue'
-import { ref, toRaw } from "vue";
+import { ref, toRaw, computed  } from "vue";
 import OwnedBooksServices from "../services/OwnedBooksServices.js";
 const OwnedBooks = ref([])
 const selectedOwnedBook = ref({})
@@ -13,6 +13,14 @@ const snackbar = ref({
   color: "",
   text: "",
 });
+
+const dateMenu = ref(false)
+
+const displayDate = computed(() => {
+  return selectedOwnedBook.value.dateBought
+    ? new Date(selectedOwnedBook.value.dateBought).toISOString().slice(0, 10)
+    : '';
+})
 
 onMounted(async () => {
   try {
@@ -34,6 +42,11 @@ onMounted(async () => {
     console.error("Cannot Fetch Owned Books: ", error)
   }
 });
+
+// function onDatePicked(val) {
+//   selectedOwnedBook.value.dateBought = new Date(val).toISOString()
+//   dateMenu.value = false;
+// }
 
 async function deleteOwnedBook(id) {
   await OwnedBooksServices.deleteOwnedBook(id)
@@ -173,12 +186,12 @@ function closeSnackBar() {
    <v-container>
     <v-row v-for="(ownedBook, index) in OwnedBooks" :key="index" class="mb-2">
       <v-col cols="2" class = "cursor-pointer" @click="openUpdateOwnedBook(ownedBook, false)">Title: {{ ownedBook.Book?.title || 'Untitiled'}}</v-col>
-      <v-col cols="2" class = "cursor-pointer" @click="openUpdateOwnedBook(ownedBook, false)">Page Count: {{ ownedBook.Book?.numPages || 'N/A'}}</v-col>
-      <v-col cols="2" class = "cursor-pointer" @click="openUpdateOwnedBook(ownedBook, false)">Link: {{ ownedBook.Book?.link || 'Empty'}}</v-col>
+      <!-- <v-col cols="2" class = "cursor-pointer" @click="openUpdateOwnedBook(ownedBook, false)">Page Count: {{ ownedBook.Book?.numPages || 'N/A'}}</v-col> -->
+      <!-- <v-col cols="2" class = "cursor-pointer" @click="openUpdateOwnedBook(ownedBook, false)">Link: {{ ownedBook.Book?.link || 'Empty'}}</v-col> -->
       <v-col cols="2" class = "cursor-pointer" @click="openUpdateOwnedBook(ownedBook, false)">Purchase Price: {{ ownedBook.paidAmount }}</v-col>
-      <v-col cols="2" class = "cursor-pointer" @click="openUpdateOwnedBook(ownedBook, false)">Purchase Date: {{ ownedBook.dateBought }}</v-col>
+      <!-- <v-col cols="2" class = "cursor-pointer" @click="openUpdateOwnedBook(ownedBook, false)">Purchase Date: {{ ownedBook.dateBought }}</v-col> -->
       <v-col cols="2" class = "cursor-pointer" @click="openUpdateOwnedBook(ownedBook, false)">Status: {{ ownedBook.ReadingStatusType?.statusName || 'No Status' }}</v-col>
-      <v-col cols="2" class = "cursor-pointer" @click="openUpdateOwnedBook(ownedBook, false)">Notes: {{ ownedBook.userNotes }}</v-col>
+      <!-- <v-col cols="2" class = "cursor-pointer" @click="openUpdateOwnedBook(ownedBook, false)">Notes: {{ ownedBook.userNotes }}</v-col> -->
       <v-col cols="1" >
       <v-icon color="red" class="cursor-pointer" @click="openUpdateOwnedBook(ownedBook, false)"> mdi-pencil </v-icon>
       </v-col>
@@ -221,11 +234,35 @@ function closeSnackBar() {
             label="Amount Paid"
           ></v-text-field>
 
-          <v-text-field
-            v-model="selectedOwnedBook.dateBought"
-            label="Purchase Date"
-          ></v-text-field>
+          <v-menu
+            v-model="dateMenu"
+            :close-on-content-click="false"
+            transition="scale-transition"
+            offset-y
+            max-width="290px"
+            min-width="auto"
+          >
+            <template v-slot:activator="{ on, attrs }">
+              <v-text-field
+                v-model="displayDate"
+                label="Purchase Date"
+                readonly
+                v-on="on"
+                v-bind="attrs"
+                @click="dateMenu = true"
+              ></v-text-field>
+            </template>
 
+            <v-date-picker
+              v-model="selectedOwnedBook.dateBought"
+              scrollable
+              :show-current="true"
+            >
+              <template v-slot:actions>
+                <v-btn text color="primary" @click="dateMenu = false">OK</v-btn>
+              </template>
+            </v-date-picker>
+          </v-menu>
 
           <v-combobox
             v-model="statusNameInput"
@@ -235,10 +272,13 @@ function closeSnackBar() {
             clearable
           />
 
-          <v-text-field
+          <v-textarea
             v-model="selectedOwnedBook.userNotes"
             label="Notes"
-          ></v-text-field>
+            rows="4"
+            auto-grow
+            outlined
+          ></v-textarea>
 
         </v-card-text>
         <v-card-actions>
