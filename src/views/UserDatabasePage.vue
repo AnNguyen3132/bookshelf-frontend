@@ -123,6 +123,7 @@ function closeSnackBar() {
             v-model="selectedUser.email"
             label="Email"
             required
+            disabled
           ></v-text-field>
 
           <v-text-field
