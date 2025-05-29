@@ -8,6 +8,7 @@ const Authors = ref([])
 const selectedAuthor = ref({})
 const isUpdateAuthor = ref(false);
 const addAuthorCheck = ref(false);
+const searchQuery = ref('');
 const snackbar = ref({
   value: false,
   color: "",
@@ -95,82 +96,86 @@ function closeSnackBar() {
 
 <template>
   <h1 class="title">Author Database</h1>
-   <v-container>
-    <v-row v-for="(author, index) in Authors" :key="index" class="mb-2">
-      <v-col cols="2" class = "cursor-pointer" @click="openUpdateAuthor(author, false)">ID: {{ author.id }}</v-col>
-      <v-col cols="2" class = "cursor-pointer" @click="openUpdateAuthor(author, false)">First Name: {{ author.firstName }}</v-col>
-      <v-col cols="2" class = "cursor-pointer" @click="openUpdateAuthor(author, false)">Middle Name: {{ author.middleName }}</v-col>
-      <v-col cols="2" class = "cursor-pointer" @click="openUpdateAuthor(author, false)">Last Name: {{ author.lastName }}</v-col>
-      <v-col cols="1" >
-      <v-icon color="red" class="cursor-pointer" @click="openUpdateAuthor(author, false)"> mdi-pencil </v-icon>
-      </v-col>
-      <v-col cols="1" >
-      <v-icon color="red" class="cursor-pointer" @click="deleteAuthor(author.id)"> mdi-delete </v-icon>
-      </v-col>
-      <v-col cols="12">
-      <v-divider class="my-1" />
-    </v-col>
-    </v-row>
+    <v-table>
+      <thead>
+        <tr>
+          <th class="text-left">ID</th>
+          <th class="text-left">First Name</th>
+          <th class="text-left">Middle Name</th>
+          <th class="text-left">Last Name</th>
+        </tr>
+      </thead>
+    <tbody>
+      <tr v-for="(author, index) in Authors" :key="index" class="mb-2">
+        <td @click="openUpdateAuthor(author, false)">{{ author.id }}</td>
+        <td @click="openUpdateAuthor(author, false)">{{ author.firstName }}</td>
+        <td @click="openUpdateAuthor(author, false)">{{ author.middleName }}</td>
+        <td @click="openUpdateAuthor(author, false)">{{ author.lastName }}</td>
+        <td>
+          <v-icon color="red" class="cursor-pointer" @click="openUpdateAuthor(author, false)"> mdi-pencil </v-icon>
+          <v-icon color="red" class="cursor-pointer" @click="deleteAuthor(author.id)"> mdi-delete </v-icon>
+        </td>
+      </tr>
+    </tbody>
+  </v-table>
+  <v-card-actions>
+    <v-spacer></v-spacer>
+    <v-btn variant="flat" color="primary" @click="openUpdateAuthor(author, true)">Add Author</v-btn>
+  </v-card-actions>
 
-    <v-card-actions>
-      <v-spacer></v-spacer>
-      <v-btn variant="flat" color="primary" @click="openUpdateAuthor(author, true)">Add Author</v-btn>
-    </v-card-actions>
+  <v-dialog persistent v-model="isUpdateAuthor" width="800">
+    <v-card class="rounded-lg elevation-5">
+      <v-card-title class="headline mb-2">Update Author</v-card-title>
+      <v-card-text>
+        <v-text-field
+          v-model="selectedAuthor.firstName"
+          label="First Name"
+          required
+        ></v-text-field>
 
-    <v-dialog persistent v-model="isUpdateAuthor" width="800">
-      <v-card class="rounded-lg elevation-5">
-        <v-card-title class="headline mb-2">Update Author</v-card-title>
-        <v-card-text>
-          <v-text-field
-            v-model="selectedAuthor.firstName"
-            label="First Name"
-            required
-          ></v-text-field>
+        <v-text-field
+          v-model="selectedAuthor.middleName"
+          label="Middle Name"
+          required
+        ></v-text-field>
 
-          <v-text-field
-            v-model="selectedAuthor.middleName"
-            label="Middle Name"
-            required
-          ></v-text-field>
+        <v-text-field
+          v-model="selectedAuthor.lastName"
+          label="Last Name"
+          required
+        ></v-text-field>
 
-          <v-text-field
-            v-model="selectedAuthor.lastName"
-            label="Last Name"
-            required
-          ></v-text-field>
-
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn
-            variant="flat"
-            color="secondary"
-            @click="closeUpdateAuthor()"
-            >Close</v-btn
-          >
-          <v-btn v-if="!addAuthorCheck" variant="flat" color="primary" @click="updateAuthor(selectedAuthor.id, selectedAuthor)"
-            >Update Author</v-btn
-          >
-          <v-btn v-if="addAuthorCheck" variant="flat" color="primary" @click="addAuthor(selectedAuthor)"
-            >Add Author</v-btn
-          >
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-    
-    <v-snackbar v-model="snackbar.value" rounded="pill">
-      {{ snackbar.text }}
-      <template v-slot:actions>
+      </v-card-text>
+      <v-card-actions>
+        <v-spacer></v-spacer>
         <v-btn
-          :color="snackbar.color"
-          variant="text"
-          @click="closeSnackBar()"
+          variant="flat"
+          color="secondary"
+          @click="closeUpdateAuthor()"
+          >Close</v-btn
         >
-          Close
-        </v-btn>
-      </template>
-    </v-snackbar>
-  </v-container>
+        <v-btn v-if="!addAuthorCheck" variant="flat" color="primary" @click="updateAuthor(selectedAuthor.id, selectedAuthor)"
+          >Update Author</v-btn
+        >
+        <v-btn v-if="addAuthorCheck" variant="flat" color="primary" @click="addAuthor(selectedAuthor)"
+          >Add Author</v-btn
+        >
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+  
+  <v-snackbar v-model="snackbar.value" rounded="pill">
+    {{ snackbar.text }}
+    <template v-slot:actions>
+      <v-btn
+        :color="snackbar.color"
+        variant="text"
+        @click="closeSnackBar()"
+      >
+        Close
+      </v-btn>
+    </template>
+  </v-snackbar>
 </template>
 
 <style scoped>
