@@ -107,12 +107,13 @@ function closeSnackBar() {
       </thead>
     <tbody>
       <tr v-for="(author, index) in Authors" :key="index" class="mb-2">
-        <td @click="openUpdateAuthor(author, false)">{{ author.id }}</td>
-        <td @click="openUpdateAuthor(author, false)">{{ author.firstName }}</td>
-        <td @click="openUpdateAuthor(author, false)">{{ author.middleName }}</td>
-        <td @click="openUpdateAuthor(author, false)">{{ author.lastName }}</td>
+        <td class = "cursor-pointer" @click="openUpdateAuthor(author, false)">{{ author.id }}</td>
+        <td class = "cursor-pointer" @click="openUpdateAuthor(author, false)">{{ author.firstName }}</td>
+        <td class = "cursor-pointer" @click="openUpdateAuthor(author, false)">{{ author.middleName }}</td>
+        <td class = "cursor-pointer" @click="openUpdateAuthor(author, false)">{{ author.lastName }}</td>
         <td>
           <v-icon color="red" class="cursor-pointer" @click="openUpdateAuthor(author, false)"> mdi-pencil </v-icon>
+          |
           <v-icon color="red" class="cursor-pointer" @click="deleteAuthor(author.id)"> mdi-delete </v-icon>
         </td>
       </tr>
