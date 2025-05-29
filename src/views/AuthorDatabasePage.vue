@@ -1,10 +1,11 @@
 
 <script setup>
 import { onMounted } from 'vue'
-import { ref, toRaw } from "vue";
+import { ref, computed } from "vue";
 import AuthorServices from "../services/AuthorServices.js";
 
 const Authors = ref([])
+const columns = ref(["ID","FirstName","MiddleName","LastName"])
 const selectedAuthor = ref({})
 const isUpdateAuthor = ref(false);
 const addAuthorCheck = ref(false);
@@ -14,6 +15,22 @@ const snackbar = ref({
   color: "",
   text: "",
 });
+
+const filteredData = computed(() => {
+  let data = Authors.value;
+  let keyword = searchQuery.value.toLowerCase();
+  if (keyword) {
+    data = data.filter((row) => {
+      return (
+        String(row.id).toLowerCase().includes(keyword) ||
+        String(row.firstName).toLowerCase().includes(keyword) ||
+        String(row.middleName).toLowerCase().includes(keyword) ||
+        String(row.lastName).toLowerCase().includes(keyword)
+      );
+    });
+  }
+  return data
+})
 
 onMounted(async () => {
   try {
@@ -96,6 +113,11 @@ function closeSnackBar() {
 
 <template>
   <h1 class="title">Author Database</h1>
+  <v-text-field
+    v-model="searchQuery"
+    label="Search"
+    required
+  ></v-text-field>
     <v-table>
       <thead>
         <tr>
@@ -106,7 +128,7 @@ function closeSnackBar() {
         </tr>
       </thead>
     <tbody>
-      <tr v-for="(author, index) in Authors" :key="index" class="mb-2">
+      <tr v-for="author in filteredData" :key="author.id" class="mb-2">
         <td class = "cursor-pointer" @click="openUpdateAuthor(author, false)">{{ author.id }}</td>
         <td class = "cursor-pointer" @click="openUpdateAuthor(author, false)">{{ author.firstName }}</td>
         <td class = "cursor-pointer" @click="openUpdateAuthor(author, false)">{{ author.middleName }}</td>
