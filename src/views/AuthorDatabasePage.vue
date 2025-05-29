@@ -50,7 +50,7 @@ async function updateAuthor(id, Author) {
     .catch((error) => {
       snackbar.value.value = true;
       snackbar.value.color = "red";
-      snackbar.value.text = "First Name and Last Name cannot be empty";
+      snackbar.value.text = "Last Name cannot be empty";
     });
 };
 
@@ -66,7 +66,7 @@ async function addAuthor(Author) {
     .catch((error) => {
       snackbar.value.value = true;
       snackbar.value.color = "red";
-      snackbar.value.text = "First Name and Last Name cannot be empty";
+      snackbar.value.text = "Last Name cannot be empty";
     });
 };
 
