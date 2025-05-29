@@ -117,7 +117,7 @@ function closeSnackBar() {
         <td v-if="book.authors.length == 1">{{ `${book.authors[0].firstName} ${book.authors[0].lastName}` }}</td>
         <td v-else-if="book.authors.length > 1">{{ `${book.authors[0].firstName} ${book.authors[0].lastName}...` }}</td>
         <td v-else>{{ `No Author Listed` }}</td>
-        <td>{{ book.publicationDate }}</td>
+        <td>{{ book.publicationDate.split('T')[0] }}</td>
         <td v-if="book.publishers.length == 1">{{ `${book.publishers[0].name}` }}</td>
         <td v-else-if="book.publishers.length > 1">{{ `${book.publishers[0].name}...` }}</td>
         <td v-else>{{ `No Publisher Listed` }}</td>
