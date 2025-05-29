@@ -1,8 +1,6 @@
 <script setup>
 import { ref, computed } from "vue";
-import BookService from "../services/BookServices.js";
 
-const books = ref([]);
 const selectedItem = ref({})
 const isView = ref(false);
 const snackbar = ref({
@@ -30,17 +28,17 @@ const filteredData = computed(() => {
         let value = '';
         if(key === 'authors'){
           row[key].forEach(element => {
-            value += element.FirstName + element.LastName;
+            value += element.firstName + element.lastName;
           });
         }
         else if(key === 'genres'){
           row[key].forEach(element => {
-            value += element.Descriptor;
+            value += element.descriptor;
           });
         }
         else if(key === 'publishers'){
           row[key].forEach(element => {
-            value += element.Name;
+            value += element.name;
           });
         }
         else{
@@ -67,11 +65,11 @@ const filteredData = computed(() => {
         let valueA = '';
         let valueB = '';
         a['authors'].array.forEach(element => {
-          valueA += element.FirstName + element.LastName;
+          valueA += element.lirstName + element.lastName;
         });
         a = valueA;
         b['authors'].array.forEach(element => {
-          valueB += element.FirstName + element.LastName;
+          valueB += element.firstName + element.lastName;
         });
         b = valueB;
         return (a === b ? 0 : a > b ? 1 : -1) * order
@@ -114,8 +112,8 @@ function closeSnackBar() {
     <tbody>
       <tr v-for="book in filteredData" :key="book.id">
         <td>{{ book.title }}</td>
-        <td v-if="book.authors.length == 1">{{ `${book.authors[0].firstName} ${book.authors[0].lastName}` }}</td>
-        <td v-else-if="book.authors.length > 1">{{ `${book.authors[0].firstName} ${book.authors[0].lastName}...` }}</td>
+        <td v-if="book.authors.length == 1">{{ `${book.authors[0].firstName ?? ``} ${book.authors[0].lastName}` }}</td>
+        <td v-else-if="book.authors.length > 1">{{ `${book.authors[0].firstName ?? ``} ${book.authors[0].lastName}...` }}</td>
         <td v-else>{{ `No Author Listed` }}</td>
         <td>{{ book.publicationDate.split('T')[0] }}</td>
         <td v-if="book.publishers.length == 1">{{ `${book.publishers[0].name}` }}</td>
