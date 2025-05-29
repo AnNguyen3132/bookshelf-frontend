@@ -113,16 +113,16 @@ function closeSnackBar() {
       </thead>
     <tbody>
       <tr v-for="book in filteredData" :key="book.id">
-        <td>{{ book.Title }}</td>
-        <td v-if="book.authors.length == 1">{{ `${book.authors[0].FirstName} ${book.authors[0].LastName}` }}</td>
-        <td v-else-if="book.authors.length > 1">{{ `${book.authors[0].FirstName} ${book.authors[0].LastName}...` }}</td>
+        <td>{{ book.title }}</td>
+        <td v-if="book.authors.length == 1">{{ `${book.authors[0].firstName} ${book.authors[0].lastName}` }}</td>
+        <td v-else-if="book.authors.length > 1">{{ `${book.authors[0].firstName} ${book.authors[0].lastName}...` }}</td>
         <td v-else>{{ `No Author Listed` }}</td>
-        <td>{{ book.PublicationDate }}</td>
-        <td v-if="book.publishers.length == 1">{{ `${book.publishers[0].Name}` }}</td>
-        <td v-else-if="book.publishers.length > 1">{{ `${book.publishers[0].Name}...` }}</td>
+        <td>{{ book.publicationDate }}</td>
+        <td v-if="book.publishers.length == 1">{{ `${book.publishers[0].name}` }}</td>
+        <td v-else-if="book.publishers.length > 1">{{ `${book.publishers[0].name}...` }}</td>
         <td v-else>{{ `No Publisher Listed` }}</td>
-        <td v-if="book.genres.length == 1">{{ `${book.genres[0].Descriptor}` }}</td>
-        <td v-else-if="book.genres.length > 1">{{ `${book.genres[0].Descriptor}...` }}</td>
+        <td v-if="book.genres.length == 1">{{ `${book.genres[0].descriptor}` }}</td>
+        <td v-else-if="book.genres.length > 1">{{ `${book.genres[0].descriptor}...` }}</td>
         <td v-else>{{ `No Genre Listed` }}</td>
         <td>
           <v-icon color="red" class="cursor-pointer" @click="alert('Update when Wishlist Book is in system')"> mdi-bag-checked </v-icon>
@@ -140,7 +140,7 @@ function closeSnackBar() {
         <v-card-title class="headline mb-2">Book Info</v-card-title>
         <v-card-text>
           <v-text-field
-            v-model="selectedItem.Title"
+            v-model="selectedItem.title"
             label="Title"
             readonly
           ></v-text-field>
@@ -154,14 +154,15 @@ function closeSnackBar() {
           >
             <template v-slot:chip="{ props, item }">
               <v-chip v-bind="props"
+                color="primary"
                 label
               >
-                <strong>{{ item.value.FirstName + " " + item.value.LastName }}</strong>&nbsp;
+                <strong>{{ item.value.firstName + " " + item.value.lastName }}</strong>&nbsp;
               </v-chip>
             </template>
           </v-combobox>
           <v-text-field
-            v-model="selectedItem.PublicationDate"
+            v-model="selectedItem.publicationDate"
             label="Publish Date"
             readonly
           ></v-text-field>
@@ -175,9 +176,10 @@ function closeSnackBar() {
           >
             <template v-slot:chip="{ props, item }">
               <v-chip v-bind="props"
+                color="primary"
                 label
               >
-                <strong>{{ item.value.Name}}</strong>&nbsp;
+                <strong>{{ item.value.name}}</strong>&nbsp;
               </v-chip>
             </template>
           </v-combobox>
@@ -191,9 +193,10 @@ function closeSnackBar() {
           >
             <template v-slot:chip="{ props, item }">
               <v-chip v-bind="props"
+                color="primary"
                 label
               >
-                <strong>{{ item.value.Descriptor }}</strong>&nbsp;
+                <strong>{{ item.value.descriptor }}</strong>&nbsp;
               </v-chip>
             </template>
           </v-combobox>
