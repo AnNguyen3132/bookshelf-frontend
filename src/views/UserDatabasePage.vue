@@ -125,13 +125,12 @@ function closeSnackBar() {
           label="Last Name"
           required
         ></v-text-field>
-
-        <v-text-field
-          v-model="selectedUser.email"
-          label="Email"
-          required
-        ></v-text-field>
-
+          <v-text-field
+            v-model="selectedUser.email"
+            label="Email"
+            required
+            disabled
+          ></v-text-field>
         <v-text-field
           v-model="selectedUser.role"
           label="role"
