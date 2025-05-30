@@ -32,6 +32,12 @@ function navigateToRecipes() {
 }
 
 async function createAccount() {
+  if(!isValidEmail(user.value.email)) {
+    snackbar.value.value = true;
+    snackbar.value.color = "error";
+    snackbar.value.text = "Email Invalid";
+    return;
+  }
   if(user.value.password !== confirmPassword.value) {
     snackbar.value.value = true;
     snackbar.value.color = "error";
@@ -94,6 +100,10 @@ function closeSnackBar() {
   snackbar.value.value = false;
 }
 
+function isValidEmail(email) {
+  console.log(email);
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
 </script>
 
 <template>
