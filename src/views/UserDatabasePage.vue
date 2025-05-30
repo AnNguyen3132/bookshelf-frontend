@@ -1,17 +1,34 @@
 <script setup>
 import { onMounted } from 'vue'
-import { useRouter } from "vue-router";
-import { ref, toRaw } from "vue";
+import { ref, computed  } from "vue";
 import UserServices from "../services/UserServices.js";
 
 const users = ref([])
 const selectedUser = ref({})
 const isUpdateUser = ref(false);
+const searchQuery = ref('');
 const snackbar = ref({
   value: false,
   color: "",
   text: "",
 });
+
+const filteredData = computed(() => {
+  let data = users.value;
+  let keyword = searchQuery.value.toLowerCase();
+  if (keyword) {
+    data = data.filter((row) => {
+      return (
+        String(row.id).toLowerCase().includes(keyword) ||
+        String(row.firstName).toLowerCase().includes(keyword) ||
+        String(row.lastName).toLowerCase().includes(keyword) ||
+        String(row.email).toLowerCase().includes(keyword) ||
+        String(row.role).toLowerCase().includes(keyword)
+      );
+    });
+  }
+  return data
+})
 
 onMounted(async () => {
   try {
@@ -85,8 +102,13 @@ function closeSnackBar() {
 
 <template>
   <h1 class="title">User Database</h1>
+  <v-text-field
+    v-model="searchQuery"
+    label="Search"
+    required
+  ></v-text-field>
     <v-container>
-    <v-row v-for="(user, index) in users" :key="index" class="mb-2">
+    <v-row v-for="user in filteredData" :key="user.id" class="mb-2">
       <v-col cols="2" class = "cursor-pointer" @click="openUpdateUser(user)">ID: {{ user.id }}</v-col>
       <v-col cols="2" class = "cursor-pointer" @click="openUpdateUser(user)">First Name: {{ user.firstName }}</v-col>
       <v-col cols="2" class = "cursor-pointer" @click="openUpdateUser(user)">Last Name: {{ user.lastName }}</v-col>
