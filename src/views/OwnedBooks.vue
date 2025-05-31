@@ -54,7 +54,7 @@ async function deleteOwnedBook(id) {
     .catch((error) => {
       snackbar.value.value = true;
       snackbar.value.color = "red";
-      snackbar.value.text = error.response?.data?.message || "An unexpected error occurred";
+      snackbar.value.text = error.response.data.message || "An unexpected error occurred";
     });
 };
 
@@ -74,9 +74,9 @@ async function updateOwnedBook(ownedBookId, ownedBook) {
   
   const updatePayload = {
     ...ownedBook,
-    title: ownedBook.book?.title,
-    link: ownedBook.book?.link,
-    numPages: ownedBook.book?.numPages,
+    title: ownedBook.book.title,
+    link: ownedBook.book.link,
+    numPages: ownedBook.book.numPages,
     ReadingStatusTypesid: statusId
   };
 
@@ -91,7 +91,7 @@ async function updateOwnedBook(ownedBookId, ownedBook) {
     .catch((error) => {
       snackbar.value.value = true;
       snackbar.value.color = "red";
-      snackbar.value.text = error.response?.data?.message || "An unexpected error occurred";
+      snackbar.value.text = error.response.data.message || "An unexpected error occurred";
     });
 };
 
@@ -111,9 +111,9 @@ async function addOwnedBook(book) {
 
   const addPayload = {
     ...book,
-    title: book.book?.title,
-    link: book.book?.link,
-    numPages: book.book?.numPages,
+    title: book.book.title,
+    link: book.book.link,
+    numPages: book.book.numPages,
     ReadingStatusTypesid: statusId
   };
 
@@ -128,7 +128,7 @@ async function addOwnedBook(book) {
     .catch((error) => {
       snackbar.value.value = true;
       snackbar.value.color = "red";
-      snackbar.value.text = error.response?.data?.message || "An unexpected error occurred";
+      snackbar.value.text = error.response.data.message || "An unexpected error occurred";
     });
 };
 
@@ -162,7 +162,7 @@ function openUpdateOwnedBook(ownedBook, addOwnedBook) {
       ...cloned,
       book: cloned.Book ?? cloned.book,
     };
-    statusNameInput.value = cloned.ReadingStatusType?.statusName || "";
+    statusNameInput.value = cloned.ReadingStatusType.statusName || "";
 }
   isUpdateOwnedBook.value = true;
 }
@@ -180,12 +180,12 @@ function closeSnackBar() {
   <h1 class="title">Owned Books</h1>
    <v-container>
     <v-row v-for="(ownedBook, index) in OwnedBooks" :key="index" class="mb-2">
-      <v-col cols="2" class = "cursor-pointer" @click="openUpdateOwnedBook(ownedBook, false)">Title: {{ ownedBook.book?.title || 'Untitiled'}}</v-col>
-      <!-- <v-col cols="2" class = "cursor-pointer" @click="openUpdateOwnedBook(ownedBook, false)">Page Count: {{ ownedBook.Book?.numPages || 'N/A'}}</v-col> -->
-      <!-- <v-col cols="2" class = "cursor-pointer" @click="openUpdateOwnedBook(ownedBook, false)">Link: {{ ownedBook.Book?.link || 'Empty'}}</v-col> -->
+      <v-col cols="2" class = "cursor-pointer" @click="openUpdateOwnedBook(ownedBook, false)">Title: {{ ownedBook.book.title || 'Untitiled'}}</v-col>
+      <!-- <v-col cols="2" class = "cursor-pointer" @click="openUpdateOwnedBook(ownedBook, false)">Page Count: {{ ownedBook.Book.numPages || 'N/A'}}</v-col> -->
+      <!-- <v-col cols="2" class = "cursor-pointer" @click="openUpdateOwnedBook(ownedBook, false)">Link: {{ ownedBook.Book.link || 'Empty'}}</v-col> -->
       <v-col cols="2" class = "cursor-pointer" @click="openUpdateOwnedBook(ownedBook, false)">Purchase Price: {{ ownedBook.paidAmount }}</v-col>
       <!-- <v-col cols="2" class = "cursor-pointer" @click="openUpdateOwnedBook(ownedBook, false)">Purchase Date: {{ ownedBook.dateBought }}</v-col> -->
-      <v-col cols="2" class = "cursor-pointer" @click="openUpdateOwnedBook(ownedBook, false)">Status: {{ ownedBook.ReadingStatusType?.statusName || 'No Status' }}</v-col>
+      <v-col cols="2" class = "cursor-pointer" @click="openUpdateOwnedBook(ownedBook, false)">Status: {{ ownedBook.ReadingStatusType.statusName || 'No Status' }}</v-col>
       <!-- <v-col cols="2" class = "cursor-pointer" @click="openUpdateOwnedBook(ownedBook, false)">Notes: {{ ownedBook.userNotes }}</v-col> -->
       <v-col cols="1" >
       <v-icon color="red" class="cursor-pointer" @click="openUpdateOwnedBook(ownedBook, false)"> mdi-pencil </v-icon>
