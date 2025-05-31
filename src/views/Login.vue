@@ -17,6 +17,7 @@ const user = ref({
   lastName: "",
   email: "",
   password: "",
+  role: "0",
 });
 
 onMounted(async () => {
@@ -31,11 +32,27 @@ function navigateToRecipes() {
 }
 
 async function createAccount() {
+  if(!isValidEmail(user.value.email)) {
+    snackbar.value.value = true;
+    snackbar.value.color = "error";
+    snackbar.value.text = "Email Invalid";
+    return;
+  }
   if(user.value.password !== confirmPassword.value) {
     snackbar.value.value = true;
     snackbar.value.color = "error";
     snackbar.value.text = "Password Does Not Match";
     return;
+  }
+  const isEmptyField = Object.values(user.value).some(
+    (value) => value === null || value === '' || value === undefined
+  );
+
+  if (isEmptyField) {
+    snackbar.value.value = true;
+    snackbar.value.color = "red";
+    snackbar.value.text = "All fields must be filled.";
+    return; 
   }
   await UserServices.addUser(user.value)
     .then(() => {
@@ -83,6 +100,10 @@ function closeSnackBar() {
   snackbar.value.value = false;
 }
 
+function isValidEmail(email) {
+  console.log(email);
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
 </script>
 
 <template>
