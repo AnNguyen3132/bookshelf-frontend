@@ -43,11 +43,6 @@ onMounted(async () => {
   }
 });
 
-// function onDatePicked(val) {
-//   selectedOwnedBook.value.dateBought = new Date(val).toISOString()
-//   dateMenu.value = false;
-// }
-
 async function deleteOwnedBook(id) {
   await OwnedBooksServices.deleteOwnedBook(id)
     .then(() => {
@@ -185,7 +180,7 @@ function closeSnackBar() {
   <h1 class="title">Owned Books</h1>
    <v-container>
     <v-row v-for="(ownedBook, index) in OwnedBooks" :key="index" class="mb-2">
-      <v-col cols="2" class = "cursor-pointer" @click="openUpdateOwnedBook(ownedBook, false)">Title: {{ ownedBook.Book?.title || 'Untitiled'}}</v-col>
+      <v-col cols="2" class = "cursor-pointer" @click="openUpdateOwnedBook(ownedBook, false)">Title: {{ ownedBook.book?.title || 'Untitiled'}}</v-col>
       <!-- <v-col cols="2" class = "cursor-pointer" @click="openUpdateOwnedBook(ownedBook, false)">Page Count: {{ ownedBook.Book?.numPages || 'N/A'}}</v-col> -->
       <!-- <v-col cols="2" class = "cursor-pointer" @click="openUpdateOwnedBook(ownedBook, false)">Link: {{ ownedBook.Book?.link || 'Empty'}}</v-col> -->
       <v-col cols="2" class = "cursor-pointer" @click="openUpdateOwnedBook(ownedBook, false)">Purchase Price: {{ ownedBook.paidAmount }}</v-col>
