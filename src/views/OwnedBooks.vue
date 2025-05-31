@@ -178,26 +178,28 @@ function closeSnackBar() {
 
 <template>
   <h1 class="title">Owned Books</h1>
-   <v-container>
-    <v-row v-for="(ownedBook, index) in OwnedBooks" :key="index" class="mb-2">
-      <v-col cols="2" class = "cursor-pointer" @click="openUpdateOwnedBook(ownedBook, false)">Title: {{ ownedBook.book.title || 'Untitiled'}}</v-col>
-      <!-- <v-col cols="2" class = "cursor-pointer" @click="openUpdateOwnedBook(ownedBook, false)">Page Count: {{ ownedBook.Book.numPages || 'N/A'}}</v-col> -->
-      <!-- <v-col cols="2" class = "cursor-pointer" @click="openUpdateOwnedBook(ownedBook, false)">Link: {{ ownedBook.Book.link || 'Empty'}}</v-col> -->
-      <v-col cols="2" class = "cursor-pointer" @click="openUpdateOwnedBook(ownedBook, false)">Purchase Price: {{ ownedBook.paidAmount }}</v-col>
-      <!-- <v-col cols="2" class = "cursor-pointer" @click="openUpdateOwnedBook(ownedBook, false)">Purchase Date: {{ ownedBook.dateBought }}</v-col> -->
-      <v-col cols="2" class = "cursor-pointer" @click="openUpdateOwnedBook(ownedBook, false)">Status: {{ ownedBook.ReadingStatusType.statusName || 'No Status' }}</v-col>
-      <!-- <v-col cols="2" class = "cursor-pointer" @click="openUpdateOwnedBook(ownedBook, false)">Notes: {{ ownedBook.userNotes }}</v-col> -->
-      <v-col cols="1" >
-      <v-icon color="red" class="cursor-pointer" @click="openUpdateOwnedBook(ownedBook, false)"> mdi-pencil </v-icon>
-      </v-col>
-      <v-col cols="1" >
-      <v-icon color="red" class="cursor-pointer" @click="deleteOwnedBook(ownedBook.id)"> mdi-delete </v-icon>
-      </v-col>
-      <v-col cols="12">
-      <v-divider class="my-1" />
-    </v-col>
-    </v-row>
 
+    <v-table>
+      <thead>
+        <tr>
+          <th class="text-left">Title</th>
+          <th class="text-left">Purchase Price</th>
+          <th class="text-left">Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="(ownedBook, index) in OwnedBooks" :key="index" class="mb-2">
+          <td class = "cursor-pointer" @click="openUpdateOwnedBook(ownedBook, false)">{{ ownedBook.book.title || 'Untitiled' }}</td>
+          <td class = "cursor-pointer" @click="openUpdateOwnedBook(ownedBook, false)">{{ ownedBook.paidAmount }}</td>
+          <td class = "cursor-pointer" @click="openUpdateOwnedBook(ownedBook, false)">{{ ownedBook.ReadingStatusType.statusName || 'No Status' }}</td>
+          <td>
+            <v-icon color="red" class="cursor-pointer" @click="openUpdateOwnedBook(ownedBook, false)"> mdi-pencil </v-icon>
+            | 
+            <v-icon color="red" class="cursor-pointer" @click="deleteOwnedBook(ownedBook.id)"> mdi-delete </v-icon>
+          </td>
+        </tr>
+      </tbody>
+    </v-table>
     <v-card-actions>
       <v-spacer></v-spacer>
       <v-btn variant="flat" color="primary" @click="openUpdateOwnedBook(ownedBook, true)">Add Book</v-btn>
@@ -219,10 +221,21 @@ function closeSnackBar() {
             label="Number of Pages"
           ></v-text-field>
 
-          <v-text-field
+          <v-text-field v-if="addOwnedBookCheck"
             v-model="selectedOwnedBook.book.link"
             label="Amazon Link"
-          ></v-text-field>
+          />
+
+          <div v-else-if="selectedOwnedBook.book.link && !addOwnedBookCheck" class="mt-1 mb-3">
+            <a
+              :href="selectedOwnedBook.book.link"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="text-primary"
+            >
+              Amazon Link
+            </a>
+          </div>
 
           <v-text-field
             v-model="selectedOwnedBook.paidAmount"
@@ -306,7 +319,6 @@ function closeSnackBar() {
         </v-btn>
       </template>
     </v-snackbar>
-  </v-container>
 </template>
 
 <style scoped>
