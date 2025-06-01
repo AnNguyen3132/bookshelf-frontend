@@ -39,6 +39,7 @@ async function updateUser(id, User) {
       snackbar.value.value = true;
       snackbar.value.color = "green";
       snackbar.value.text = "User Updated";
+      window.localStorage.setItem("user", JSON.stringify(user.value));
       isUpdateAccount.value = false;
     })
     .catch((error) => {
