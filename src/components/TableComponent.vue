@@ -148,6 +148,7 @@ function closeSnackBar() {
             Genre
             <span class="arrow" :class="sortOrders['*Genres'] > 0 > 0 ? 'asc' : 'dsc'"/>
           </th>
+          <th class="text-left">Link</th>
           <th class="text-left">Action</th>
         </tr>
       </thead>
@@ -164,6 +165,7 @@ function closeSnackBar() {
         <td v-if="book.genres.length == 1">{{ `${book.genres[0].descriptor}` }}</td>
         <td v-else-if="book.genres.length > 1">{{ `${book.genres[0].descriptor}...` }}</td>
         <td v-else>{{ `No Genre Listed` }}</td>
+        <td><a class="primary" :href="book.link" target="_blank">Buy Book</a></td>
         <td>
           <v-icon color="red" class="cursor-pointer" @click="alert('Update when Wishlist Book is in system')"> mdi-bag-checked </v-icon>
           |
@@ -252,18 +254,18 @@ function closeSnackBar() {
         </v-card-actions>
       </v-card>
   </v-dialog>
-    <v-snackbar v-model="snackbar.value" rounded="pill">
-      {{ snackbar.text }}
-      <template v-slot:actions>
-        <v-btn
-          :color="snackbar.color"
-          variant="text"
-          @click="closeSnackBar()"
-        >
-          Close
-        </v-btn>
-      </template>
-    </v-snackbar>
+  <v-snackbar v-model="snackbar.value" rounded="pill">
+    {{ snackbar.text }}
+    <template v-slot:actions>
+      <v-btn
+        :color="snackbar.color"
+        variant="text"
+        @click="closeSnackBar()"
+      >
+        Close
+      </v-btn>
+    </template>
+  </v-snackbar>
 </template>
 
 <style scoped>
@@ -315,5 +317,17 @@ th.active .arrow {
   border-left: 4px solid transparent;
   border-right: 4px solid transparent;
   border-top: 4px solid black;
+}
+a {
+  display: grid;
+  align-content: center;
+  border-radius: 5px;
+  color: white;
+  background-color: #80162B;
+  text-decoration: none;
+  text-align: center;
+}
+a:hover {
+  background-color: #80162b9c;
 }
 </style>
