@@ -185,6 +185,7 @@ function closeSnackBar() {
           <th class="text-left">Title</th>
           <th class="text-left">Purchase Price</th>
           <th class="text-left">Status</th>
+          <th class="text-left">Actions</th>
         </tr>
       </thead>
       <tbody>
