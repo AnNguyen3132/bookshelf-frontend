@@ -53,26 +53,41 @@ const filteredData = computed(() => {
     if (key) {
       const order = sortOrders.value[key]
       data = data.slice().sort((a, b) => {
-        a = a[key]
-        b = b[key]
+        let camelKey = key.charAt(0).toLowerCase() + key.slice(1)
+        a = a[camelKey]
+        b = b[camelKey]
         return (a === b ? 0 : a > b ? 1 : -1) * order
       })
     }
   }
-  else if(sortKey.value === '*Authors'){
+  else if(sortKey.value.includes('*')){
+    const key = sortKey.value
     const order = sortOrders.value[key]
+      let camelKey = key.charAt(1).toLowerCase() + key.slice(2)
       data = data.slice().sort((a, b) => {
         let valueA = '';
         let valueB = '';
-        a['authors'].array.forEach(element => {
-          valueA += element.lirstName + element.lastName;
-        });
-        a = valueA;
-        b['authors'].array.forEach(element => {
-          valueB += element.firstName + element.lastName;
-        });
-        b = valueB;
-        return (a === b ? 0 : a > b ? 1 : -1) * order
+        if(a[camelKey]){
+          a[camelKey].forEach(element => {
+            if(key === '*Authors')
+              valueA += element.lastName;
+            else if(key === '*Publishers')
+              valueA += element.name;
+            else if(key === '*Genres')
+              valueA += element.descriptor;
+          });
+        }
+        if(b[camelKey]){
+          b[camelKey].forEach(element => {
+            if(key === '*Authors')
+              valueB += element.lastName;
+            else if(key === '*Publishers')
+              valueB += element.name;
+            else if(key === '*Genres')
+              valueB += element.descriptor;
+          });
+        }
+        return (valueA === valueB ? 0 : valueA > valueB ? 1 : -1) * order
       })
   }
   return data
@@ -80,9 +95,6 @@ const filteredData = computed(() => {
 function sortBy(key) {
   sortKey.value = key
   sortOrders.value[key] *= -1
-}
-function capitalize(str) {
-  return str.charAt(0).toUpperCase() + str.slice(1)
 }
 function openViewer(book) {
   selectedItem.value = {...book}
@@ -94,6 +106,13 @@ function closeViewer() {
 function closeSnackBar() {
   snackbar.value.value = false;
 }
+const regex = /((([A-Za-z]{3,9}:(?:\/\/)?)(?:[-;:&=\+\$,\w]+@)?[A-Za-z0-9.-]+|(?:www.|[-;:&=\+\$,\w]+@)[A-Za-z0-9.-]+)((?:\/[\+~%\/.\w-_]*)?\??(?:[-\+=&;%@.\w_]*)#?(?:[\w]*))?)/;
+function isValid (link) {
+    if (!link)
+      return false;
+    else
+      return link.match(regex);
+  }
 </script>
 
 <template>
@@ -101,11 +120,42 @@ function closeSnackBar() {
   <v-table v-if="filteredData.length">
       <thead>
         <tr>
-          <th class="text-left">Title</th>
-          <th class="text-left">Author</th>
-          <th class="text-left">Publication Date</th>
-          <th class="text-left">Publisher</th>
-          <th class="text-left">Genre</th>
+          <th class="text-left"
+            @click="sortBy('Title')"
+            :class="{ active: sortKey == 'Title' }"
+          >
+            Title
+            <span class="arrow" :class="sortOrders['Title'] > 0 > 0 ? 'asc' : 'dsc'"/>
+          </th>
+          <th class="text-left"
+            @click="sortBy('*Authors')"
+            :class="{ active: sortKey == '*Authors' }"
+          >
+            Author
+            <span class="arrow" :class="sortOrders['*Authors'] > 0 > 0 ? 'asc' : 'dsc'"/>  
+          </th>
+          <th class="text-left"
+            @click="sortBy('PublicationDate')"
+            :class="{ active: sortKey == 'PublicationDate' }"
+          >
+            Publication Date
+            <span class="arrow" :class="sortOrders['PublicationDate'] > 0 > 0 ? 'asc' : 'dsc'"/>
+          </th>
+          <th class="text-left"
+            @click="sortBy('*Publishers')"
+            :class="{ active: sortKey == '*Publishers' }"
+          >
+            Publisher
+            <span class="arrow" :class="sortOrders['*Publishers'] > 0 > 0 ? 'asc' : 'dsc'"/>
+          </th>
+          <th class="text-left"
+            @click="sortBy('*Genres')"
+            :class="{ active: sortKey == '*Genres' }"
+          >
+            Genre
+            <span class="arrow" :class="sortOrders['*Genres'] > 0 > 0 ? 'asc' : 'dsc'"/>
+          </th>
+          <th class="text-left">Link</th>
           <th class="text-left">Action</th>
         </tr>
       </thead>
@@ -122,6 +172,10 @@ function closeSnackBar() {
         <td v-if="book.genres.length == 1">{{ `${book.genres[0].descriptor}` }}</td>
         <td v-else-if="book.genres.length > 1">{{ `${book.genres[0].descriptor}...` }}</td>
         <td v-else>{{ `No Genre Listed` }}</td>
+        <td>
+          <a v-if="isValid(book.link)" class="primary" :href="book.link" target="_blank">Buy Book</a>
+          <a v-else>Invalid Link</a>
+        </td>
         <td>
           <v-icon color="red" class="cursor-pointer" @click="alert('Update when Wishlist Book is in system')"> mdi-bag-checked </v-icon>
           |
@@ -210,18 +264,18 @@ function closeSnackBar() {
         </v-card-actions>
       </v-card>
   </v-dialog>
-    <v-snackbar v-model="snackbar.value" rounded="pill">
-      {{ snackbar.text }}
-      <template v-slot:actions>
-        <v-btn
-          :color="snackbar.color"
-          variant="text"
-          @click="closeSnackBar()"
-        >
-          Close
-        </v-btn>
-      </template>
-    </v-snackbar>
+  <v-snackbar v-model="snackbar.value" rounded="pill">
+    {{ snackbar.text }}
+    <template v-slot:actions>
+      <v-btn
+        :color="snackbar.color"
+        variant="text"
+        @click="closeSnackBar()"
+      >
+        Close
+      </v-btn>
+    </template>
+  </v-snackbar>
 </template>
 
 <style scoped>
@@ -229,5 +283,61 @@ function closeSnackBar() {
   text-align: center;
   margin: 0.5rem 0;
   font-weight: 600;
+}
+table {
+  border: 2px solid;
+  border-radius: 3px;
+}
+
+th {
+  cursor: pointer;
+  user-select: none;
+}
+
+th,
+td {
+  min-width: 120px;
+  padding: 10px 20px;
+}
+
+th.active {
+  color: #3e3d3d;
+}
+
+th.active .arrow {
+  opacity: 1;
+}
+
+.arrow {
+  display: inline-block;
+  vertical-align: middle;
+  width: 0;
+  height: 0;
+  margin-left: 5px;
+  opacity: 0.66;
+}
+
+.arrow.asc {
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-bottom: 4px solid black;
+}
+
+.arrow.dsc {
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 4px solid black;
+}
+a {
+  display: grid;
+  align-content: center;
+  border-radius: 5px;
+  color: white;
+  background-color: #80162B;
+  text-decoration: none;
+  text-align: center;
+}
+a:hover {
+  background-color: #80162b9c;
 }
 </style>
