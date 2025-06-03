@@ -22,6 +22,11 @@ const displayDate = computed(() => {
     : '';
 })
 
+const currencyFormat = new Intl.NumberFormat('en-US', {
+  style: 'currency',
+  currency: 'USD'
+});
+
 onMounted(async () => {
   try {
     fetchOwnedBooks()
@@ -186,12 +191,13 @@ function closeSnackBar() {
           <th class="text-left">Purchase Price</th>
           <th class="text-left">Status</th>
           <th class="text-left">Actions</th>
+
         </tr>
       </thead>
       <tbody>
         <tr v-for="(ownedBook, index) in OwnedBooks" :key="index" class="mb-2">
           <td class = "cursor-pointer" @click="openUpdateOwnedBook(ownedBook, false)">{{ ownedBook.book.title || 'Untitiled' }}</td>
-          <td class = "cursor-pointer" @click="openUpdateOwnedBook(ownedBook, false)">{{ ownedBook.paidAmount }}</td>
+          <td class = "cursor-pointer" @click="openUpdateOwnedBook(ownedBook, false)">{{ currencyFormat.format(ownedBook.paidAmount) }}</td>
           <td class = "cursor-pointer" @click="openUpdateOwnedBook(ownedBook, false)">{{ ownedBook.ReadingStatusType.statusName || 'No Status' }}</td>
           <td>
             <v-icon color="red" class="cursor-pointer" @click="openUpdateOwnedBook(ownedBook, false)"> mdi-pencil </v-icon>
@@ -229,7 +235,7 @@ function closeSnackBar() {
 
           <v-text-field
             v-model="selectedOwnedBook.paidAmount"
-            label="Amount Paid"
+            label="Purchase Price"
           ></v-text-field>
 
           <v-menu
