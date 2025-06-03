@@ -14,6 +14,7 @@ const snackbar = ref({
   color: "",
   text: "",
 });
+const dateMenu = ref(false)
 
 const filteredData = computed(() => {
   let data = Items.value;
@@ -54,8 +55,8 @@ async function deleteItem(id) {
     });
 };
 
-async function updateItem(id, Book) {
-  await BookServices.updateBook(id, Book)
+async function updateItem(Book) {
+  await BookServices.updateBook(Book)
     .then(() => {
       fetchData()
       snackbar.value.value = true;
@@ -152,45 +153,112 @@ function closeSnackBar() {
     <v-btn variant="flat" color="primary" @click="openUpdateItem(item, true)">Add Book</v-btn>
   </v-card-actions>
 
-  <v-dialog persistent v-model="isUpdateItem" width="800">
-    <v-card class="rounded-lg elevation-5">
-      <v-card-title class="headline mb-2">Update Author</v-card-title>
-      <v-card-text>
-        <v-text-field
-          v-model="selectedItem.title"
-          label="First Name"
-          required
-        ></v-text-field>
-
-        <v-text-field
-          v-model="selectedItem.numPages"
-          label="Middle Name"
-          required
-        ></v-text-field>
-
-        <v-text-field
-          v-model="selectedItem.lastName"
-          label="Last Name"
-          required
-        ></v-text-field>
-
-      </v-card-text>
-      <v-card-actions>
-        <v-spacer></v-spacer>
-        <v-btn
-          variant="flat"
-          color="secondary"
-          @click="closeUpdateItem()"
-          >Close</v-btn
-        >
-        <v-btn v-if="!addItemCheck" variant="flat" color="primary" @click="updateItem(selectedItem.id, selectedItem)"
-          >Update Author</v-btn
-        >
-        <v-btn v-if="addItemCheck" variant="flat" color="primary" @click="addItem(selectedItem)"
-          >Add Author</v-btn
-        >
-      </v-card-actions>
-    </v-card>
+   <v-dialog persistent v-model="isUpdateItem" width="800">
+      <v-card class="rounded-lg elevation-5">
+        <v-card-title class="headline mb-2">Book Info</v-card-title>
+        <v-card-text>
+          <v-text-field
+            v-model="selectedItem.title"
+            label="Title"
+          ></v-text-field>
+          <v-combobox
+            v-model="selectedItem.authors"
+            :items="selectedItem.authors"
+            label="Authors"
+            chips
+            multiple
+          >
+            <template v-slot:chip="{ props, item }">
+              <v-chip v-bind="props"
+                color="primary"
+                label
+              >
+                <strong>{{ item.value.firstName + " " + item.value.lastName }}</strong>&nbsp;
+              </v-chip>
+            </template>
+          </v-combobox>
+          <v-number-input control-variant="default"
+            v-model="selectedItem.numPages"
+            label="Number of Pages"
+          ></v-number-input>
+          <v-menu
+            v-model="dateMenu"
+            :close-on-content-click="false"
+            transition="scale-transition"
+            offset-y
+            max-width="290px"
+            min-width="auto"
+          >
+            <template v-slot:activator="{ on, attrs }">
+              <v-text-field
+                v-model="selectedItem.publicationDate"
+                label="Publication Date"
+                readonly
+                v-on="on"
+                v-bind="attrs"
+                @click="dateMenu = true"
+              ></v-text-field>
+            </template>
+            <v-date-picker
+              v-model="selectedItem.publicationDate"
+              scrollable
+              :show-current="true"
+            >
+              <template v-slot:actions>
+                <v-btn text color="primary" @click="dateMenu = false">OK</v-btn>
+              </template>
+            </v-date-picker>
+          </v-menu>
+          <v-combobox
+            v-model="selectedItem.publishers"
+            :items="selectedItem.publishers"
+            label="Publishers"
+            chips
+            multiple
+          >
+            <template v-slot:chip="{ props, item }">
+              <v-chip v-bind="props"
+                color="primary"
+                label
+              >
+                <strong>{{ item.value.name}}</strong>&nbsp;
+              </v-chip>
+            </template>
+          </v-combobox>
+          <v-combobox
+            v-model="selectedItem.genres"
+            :items="selectedItem.genres"
+            label="Genres"
+            chips
+            multiple
+          >
+            <template v-slot:chip="{ props, item }">
+              <v-chip v-bind="props"
+                color="primary"
+                label
+              >
+                <strong>{{ item.value.descriptor }}</strong>&nbsp;
+              </v-chip>
+            </template>
+          </v-combobox>
+          <v-text-field
+            v-model="selectedItem.link"
+            label="Link"
+          ></v-text-field>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn
+            variant="flat"
+            color="secondary"
+            @click="closeUpdateItem()"
+            >Close</v-btn>
+          <v-btn v-if="!addItemCheck" variant="flat" color="primary" @click="updateItem(selectedItem)"
+          >Update Book</v-btn>
+          <v-btn v-if="addItemCheck" variant="flat" color="primary" @click="addItem(selectedItem)"
+          >Add Book</v-btn>
+        </v-card-actions>
+      </v-card>
   </v-dialog>
   
   <v-snackbar v-model="snackbar.value" rounded="pill">
