@@ -191,7 +191,6 @@ function closeSnackBar() {
           <th class="text-left">Purchase Price</th>
           <th class="text-left">Status</th>
           <th class="text-left">Actions</th>
-
         </tr>
       </thead>
       <tbody>
@@ -228,10 +227,21 @@ function closeSnackBar() {
             label="Number of Pages"
           ></v-text-field>
 
-          <v-text-field
+          <v-text-field v-if="addOwnedBookCheck"
             v-model="selectedOwnedBook.book.link"
             label="Amazon Link"
-          ></v-text-field>
+          />
+
+          <div v-else-if="selectedOwnedBook.book.link && !addOwnedBookCheck" class="mt-1 mb-3">
+            <a
+              :href="selectedOwnedBook.book.link"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="text-primary"
+            >
+              Amazon Link
+            </a>
+          </div>
 
           <v-text-field
             v-model="selectedOwnedBook.paidAmount"
