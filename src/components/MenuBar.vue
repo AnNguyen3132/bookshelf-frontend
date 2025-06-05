@@ -72,7 +72,7 @@ export default {
           <v-list-item :to="{ name: 'UserDatabasePage' }" link>
             <v-list-item-title>User Database</v-list-item-title>
           </v-list-item>
-          <v-list-item :to="{ name: 'Recommendations' }" link>
+          <v-list-item :to="{ name: 'login' }" link>
             <v-list-item-title>Logout</v-list-item-title>
           </v-list-item>
         </v-list>
