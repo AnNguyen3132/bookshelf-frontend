@@ -118,7 +118,7 @@ function closeSnackBar() {
       </tr>
     </thead>
   <tbody>
-    <tr v-row v-for="(user, index) in users" :key="index" class="mb-2">
+    <tr v-row v-for="user in filteredData" :key="user.id" class="mb-2">
       <td class = "cursor-pointer" @click="openUpdateUser(user)">{{ user.id }}</td>
       <td class = "cursor-pointer" @click="openUpdateUser(user)">{{ user.firstName }}</td>
       <td class = "cursor-pointer" @click="openUpdateUser(user)">{{ user.lastName }}</td>
