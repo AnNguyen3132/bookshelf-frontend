@@ -1,6 +1,6 @@
 <script setup>
 import { onMounted } from 'vue'
-import { ref, computed } from "vue";
+import { ref } from "vue";
 import LLMServices from "../services/LLMServices.js";
 import OwnedBooksServices from "../services/OwnedBooksServices.js";
 const OwnedBooks = ref([])
@@ -19,9 +19,7 @@ function getRecommendations() {
   fetchOwnedBooks().then(() => {
     LLMServices.getRecommendations(OwnedBooks.value)
       .then((response) => {
-        console.log(response);
-        const raw = response.data.recommendations;
-        const jsonText = raw.replace(/```json\n?/, '').replace(/\n?```$/, '');
+        const jsonText = response.data.replace(/```json\n?/, '').replace(/\n?```$/, '');
         recommendedBooks.value = JSON.parse(jsonText);
       })
       .catch((error) => {
@@ -52,8 +50,8 @@ async function fetchOwnedBooks() {
   <tbody>
     <tr v-for="recommendedBook in recommendedBooks" :key="recommendedBook.book" class="mb-2">
       <td class = "cursor-pointer" >{{recommendedBook.book}}</td>
-      <td class = "cursor-pointer" >{{recommendedBook.publisher }}</td>
       <td class = "cursor-pointer" >{{recommendedBook.author }}</td>
+      <td class = "cursor-pointer" >{{recommendedBook.publisher }}</td>
       <td>
         <v-icon color="red" class="cursor-pointer" > mdi-pencil </v-icon>
         | 
