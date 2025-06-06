@@ -37,4 +37,13 @@ const apiClient = axios.create({
   },
 });
 
+// Add a request interceptor to inject the token if available
+apiClient.interceptors.request.use((config) => {
+  const token = localStorage.getItem("token"); // or from Vuex
+  if (token) {
+    config.headers["Authorization"] = `Bearer ${token}`;
+  }
+  return config;
+});
+
 export default apiClient;
