@@ -133,20 +133,6 @@ async function addOwnedBook(book, token) {
     readingStatusTypesId: statusId
   };
 
-  try {
-    await OwnedBooksServices.addOwnedBook(addPayload);
-    fetchOwnedBooks();
-    snackbar.value.color = "green";
-    snackbar.value.text = "Book Added";
-    snackbar.value.value = true;
-    isUpdateOwnedBook.value = false;
-  } catch (error) {
-    console.error(error);
-    snackbar.value.color = "red";
-    snackbar.value.text =
-      error.message || "An unexpected error occurred";
-    snackbar.value.value = true;
-  }
   await OwnedBooksServices.addOwnedBook(addPayload, token)
     .then(() => {
       fetchOwnedBooks()
