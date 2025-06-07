@@ -10,7 +10,6 @@ const Items = ref([]);
 const Genres = ref([])
 const Authors = ref([])
 const Publishers = ref([])
-const columns = ref(["ID","FirstName","MiddleName","LastName"]);
 const selectedItem = ref({});
 const isUpdateItem = ref(false);
 const addItemCheck = ref(false);
@@ -57,7 +56,7 @@ async function deleteItem(id) {
     .catch((error) => {
       snackbar.value.value = true;
       snackbar.value.color = "red";
-      snackbar.value.text = "Couldn't Delete Author";
+      snackbar.value.text = "Couldn't Delete Book";
     })
     .finally(()=>{
       fetchData();
@@ -77,7 +76,7 @@ async function updateItem(Item) {
       snackbar.value.value = true;
       snackbar.value.color = "red";
       console.log(error)
-      snackbar.value.text = "Last Name cannot be empty";
+      snackbar.value.text = "Issue Updating Book";
     })
     .finally(()=>{
       fetchData();
@@ -96,7 +95,7 @@ async function addItem(Item) {
     .catch((error) => {
       snackbar.value.value = true;
       snackbar.value.color = "red";
-      snackbar.value.text = "Last Name cannot be empty";
+      snackbar.value.text = "Issue Creating Book";
     })
     .finally(()=>{
       fetchData();
