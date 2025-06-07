@@ -8,6 +8,8 @@ const isUpdateOwnedBook = ref(false);
 const addOwnedBookCheck = ref(false);
 const statusOptions = ref([]);
 const statusNameInput = ref("");
+const userData = JSON.parse(localStorage.getItem("user"));
+const token = userData.token || "";
 const snackbar = ref({
   value: false,
   color: "",
@@ -22,9 +24,14 @@ const displayDate = computed(() => {
     : '';
 })
 
+const currencyFormat = new Intl.NumberFormat('en-US', {
+  style: 'currency',
+  currency: 'USD'
+});
+
 onMounted(async () => {
   try {
-    fetchOwnedBooks()
+    await fetchOwnedBooks()
 
     //const response = await fetch("http://localhost/bookshelfapi/ReadingStatusTypes");//leaving this here for now, will mod later when adding the true combo box
     // const data = await response.json();
@@ -43,7 +50,7 @@ onMounted(async () => {
   }
 });
 
-async function deleteOwnedBook(id) {
+async function deleteOwnedBook(id, token) {
   await OwnedBooksServices.deleteOwnedBook(id)
     .then(() => {
       snackbar.value.value = true;
@@ -58,7 +65,7 @@ async function deleteOwnedBook(id) {
     });
 };
 
-async function updateOwnedBook(ownedBookId, ownedBook) {
+async function updateOwnedBook(ownedBookId, ownedBook, token) {
   const selectedStatus = statusOptions.value.find(
     option => option.statusName === statusNameInput.value
   );
@@ -77,10 +84,10 @@ async function updateOwnedBook(ownedBookId, ownedBook) {
     title: ownedBook.book.title,
     link: ownedBook.book.link,
     numPages: ownedBook.book.numPages,
-    ReadingStatusTypesid: statusId
+    readingStatusTypesId: statusId
   };
 
-  await OwnedBooksServices.updateOwnedBook(ownedBookId, updatePayload)
+  await OwnedBooksServices.updateOwnedBook(ownedBookId, updatePayload, token)
     .then(() => {
       fetchOwnedBooks()
       snackbar.value.value = true;
@@ -95,7 +102,7 @@ async function updateOwnedBook(ownedBookId, ownedBook) {
     });
 };
 
-async function addOwnedBook(book) {
+async function addOwnedBook(book, token) {
   const selectedStatus = statusOptions.value.find(
     option => option.statusName === statusNameInput.value
   );
@@ -114,10 +121,10 @@ async function addOwnedBook(book) {
     title: book.book.title,
     link: book.book.link,
     numPages: book.book.numPages,
-    ReadingStatusTypesid: statusId
+    readingStatusTypesId: statusId
   };
 
-  await OwnedBooksServices.addOwnedBook(addPayload)
+  await OwnedBooksServices.addOwnedBook(addPayload, token)
     .then(() => {
       fetchOwnedBooks()
       snackbar.value.value = true;
@@ -133,9 +140,18 @@ async function addOwnedBook(book) {
 };
 
 async function fetchOwnedBooks() {
-  const response = await OwnedBooksServices.getOwnedBook()
-  console.log("Fetched books:", response.data);
-  OwnedBooks.value = response.data
+  try {
+    const response = await OwnedBooksServices.getOwnedBook(token);
+
+    OwnedBooks.value = response.data;
+  } catch (err) {
+    console.error("Error fetching books:", err.response?.data || err);
+    snackbar.value = {
+      value: true,
+      color: 'red',
+      text: 'Failed to load books.'
+    }
+  }
 }
 
 function openUpdateOwnedBook(ownedBook, addOwnedBook) {
@@ -151,7 +167,7 @@ function openUpdateOwnedBook(ownedBook, addOwnedBook) {
       paidAmount: '',
       dateBought: '',
       userNotes: '',
-      ReadingStatusTypesid: null,
+      readingStatusTypesId: null,
       ReadingStatusType: { statusName: '' }
     };
     statusNameInput.value = 'To Read';
@@ -178,7 +194,6 @@ function closeSnackBar() {
 
 <template>
   <h1 class="title">Owned Books</h1>
-
     <v-table>
       <thead>
         <tr>
@@ -191,7 +206,7 @@ function closeSnackBar() {
       <tbody>
         <tr v-for="(ownedBook, index) in OwnedBooks" :key="index" class="mb-2">
           <td class = "cursor-pointer" @click="openUpdateOwnedBook(ownedBook, false)">{{ ownedBook.book.title || 'Untitiled' }}</td>
-          <td class = "cursor-pointer" @click="openUpdateOwnedBook(ownedBook, false)">{{ ownedBook.paidAmount }}</td>
+          <td class = "cursor-pointer" @click="openUpdateOwnedBook(ownedBook, false)">{{ currencyFormat.format(ownedBook.paidAmount) }}</td>
           <td class = "cursor-pointer" @click="openUpdateOwnedBook(ownedBook, false)">{{ ownedBook.ReadingStatusType.statusName || 'No Status' }}</td>
           <td>
             <v-icon color="red" class="cursor-pointer" @click="openUpdateOwnedBook(ownedBook, false)"> mdi-pencil </v-icon>
@@ -203,7 +218,7 @@ function closeSnackBar() {
     </v-table>
     <v-card-actions>
       <v-spacer></v-spacer>
-      <v-btn variant="flat" color="primary" @click="openUpdateOwnedBook(ownedBook, true)">Add Book</v-btn>
+      <v-btn variant="flat" color="primary" @click="openUpdateOwnedBook(null, true)">Add Book</v-btn>
     </v-card-actions>
 
     <v-dialog persistent v-model="isUpdateOwnedBook" width="800">
@@ -222,14 +237,25 @@ function closeSnackBar() {
             label="Number of Pages"
           ></v-text-field>
 
-          <v-text-field
+          <v-text-field v-if="addOwnedBookCheck"
             v-model="selectedOwnedBook.book.link"
             label="Amazon Link"
-          ></v-text-field>
+          />
+
+          <div v-else-if="selectedOwnedBook.book.link && !addOwnedBookCheck" class="mt-1 mb-3">
+            <a
+              :href="selectedOwnedBook.book.link"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="text-primary"
+            >
+              Amazon Link
+            </a>
+          </div>
 
           <v-text-field
             v-model="selectedOwnedBook.paidAmount"
-            label="Amount Paid"
+            label="Purchase Price"
           ></v-text-field>
 
           <v-menu
@@ -287,10 +313,10 @@ function closeSnackBar() {
             @click="closeUpdateOwnedBook()"
             >Close</v-btn
           >
-          <v-btn v-if="!addOwnedBookCheck" variant="flat" color="primary" @click="updateOwnedBook(selectedOwnedBook.id, selectedOwnedBook)"
+          <v-btn v-if="!addOwnedBookCheck" variant="flat" color="primary" @click="updateOwnedBook(selectedOwnedBook.id, selectedOwnedBook, token)"
             >Update Book</v-btn
           >
-          <v-btn v-if="addOwnedBookCheck" variant="flat" color="primary" @click="addOwnedBook(selectedOwnedBook)"
+          <v-btn v-if="addOwnedBookCheck" variant="flat" color="primary" @click="addOwnedBook(selectedOwnedBook, token)"
             >Add Book</v-btn
           >
         </v-card-actions>

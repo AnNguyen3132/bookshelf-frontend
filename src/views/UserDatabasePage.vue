@@ -107,68 +107,75 @@ function closeSnackBar() {
     label="Search"
     required
   ></v-text-field>
-    <v-container>
-    <v-row v-for="user in filteredData" :key="user.id" class="mb-2">
-      <v-col cols="2" class = "cursor-pointer" @click="openUpdateUser(user)">ID: {{ user.id }}</v-col>
-      <v-col cols="2" class = "cursor-pointer" @click="openUpdateUser(user)">First Name: {{ user.firstName }}</v-col>
-      <v-col cols="2" class = "cursor-pointer" @click="openUpdateUser(user)">Last Name: {{ user.lastName }}</v-col>
-      <v-col cols="2" class = "cursor-pointer" @click="openUpdateUser(user)">Email: {{ user.email }}</v-col>
-      <v-col cols="2" class = "cursor-pointer" @click="openUpdateUser(user)">Role: {{ user.role }}</v-col>
-      <v-col cols="1" >
-      <v-icon color="red" class="cursor-pointer" @click="openUpdateUser(user)"> mdi-pencil </v-icon>
-      </v-col>
-      <v-col cols="1" >
-      <v-icon color="red" class="cursor-pointer" @click="deleteUser(user.id)"> mdi-delete </v-icon>
-      </v-col>
-      <v-col cols="12">
-      <v-divider class="my-1" />
-    </v-col>
-    </v-row>
+  <v-table>
+    <thead>
+      <tr>
+        <th class="text-left">ID</th>
+        <th class="text-left">First Name</th>
+        <th class="text-left">Last Name</th>
+        <th class="text-left">Email</th>
+        <th class="text-left">Role</th>
+      </tr>
+    </thead>
+  <tbody>
+    <tr v-row v-for="user in filteredData" :key="user.id" class="mb-2">
+      <td class = "cursor-pointer" @click="openUpdateUser(user)">{{ user.id }}</td>
+      <td class = "cursor-pointer" @click="openUpdateUser(user)">{{ user.firstName }}</td>
+      <td class = "cursor-pointer" @click="openUpdateUser(user)">{{ user.lastName }}</td>
+      <td class = "cursor-pointer" @click="openUpdateUser(user)">{{ user.email }}</td>
+      <td class = "cursor-pointer" @click="openUpdateUser(user)">{{ user.role }}</td>
+      <td>
+        <v-icon color="red" class="cursor-pointer" @click="openUpdateUser(user)"> mdi-pencil </v-icon>
+        |
+        <v-icon color="red" class="cursor-pointer" @click="deleteUser(user.id)"> mdi-delete </v-icon>
+      </td>
+    </tr>
+  </tbody>
+  </v-table>     
+  <v-dialog persistent v-model="isUpdateUser" width="800">
+    <v-card class="rounded-lg elevation-5">
+      <v-card-title class="headline mb-2">Update User</v-card-title>
+      <v-card-text>
+        <v-text-field
+          v-model="selectedUser.firstName"
+          label="First Name"
+          required
+        ></v-text-field>
 
-    <v-dialog persistent v-model="isUpdateUser" width="800">
-      <v-card class="rounded-lg elevation-5">
-        <v-card-title class="headline mb-2">Update User</v-card-title>
-        <v-card-text>
-          <v-text-field
-            v-model="selectedUser.firstName"
-            label="First Name"
-            required
-          ></v-text-field>
+        <v-text-field
+          v-model="selectedUser.lastName"
+          label="Last Name"
+          required
+        ></v-text-field>
 
-          <v-text-field
-            v-model="selectedUser.lastName"
-            label="Last Name"
-            required
-          ></v-text-field>
+        <v-text-field
+          v-model="selectedUser.email"
+          label="Email"
+          required
+          disabled
+        ></v-text-field>
 
-          <v-text-field
-            v-model="selectedUser.email"
-            label="Email"
-            required
-            disabled
-          ></v-text-field>
+        <v-text-field
+          v-model="selectedUser.role"
+          label="role"
+          required
+        ></v-text-field>
 
-          <v-text-field
-            v-model="selectedUser.role"
-            label="role"
-            required
-          ></v-text-field>
-
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn
-            variant="flat"
-            color="secondary"
-            @click="closeUpdateUser()"
-            >Close</v-btn
-          >
-          <v-btn variant="flat" color="primary" @click="updateUser(selectedUser.id, selectedUser)"
-            >Update</v-btn
-          >
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+      </v-card-text>
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn
+          variant="flat"
+          color="secondary"
+          @click="closeUpdateUser()"
+          >Close</v-btn
+        >
+        <v-btn variant="flat" color="primary" @click="updateUser(selectedUser.id, selectedUser)"
+          >Update</v-btn
+        >
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
     
     <v-snackbar v-model="snackbar.value" rounded="pill">
       {{ snackbar.text }}
@@ -182,7 +189,6 @@ function closeSnackBar() {
         </v-btn>
       </template>
     </v-snackbar>
-  </v-container>
 </template>
 
 <style scoped>
