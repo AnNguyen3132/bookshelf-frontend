@@ -51,13 +51,16 @@ async function deleteItem(id) {
     .then(() => {
       snackbar.value.value = true;
       snackbar.value.color = "green";
-      snackbar.value.text = "Author Deleted";
+      snackbar.value.text = "Book Deleted";
       fetchData()
     })
     .catch((error) => {
       snackbar.value.value = true;
       snackbar.value.color = "red";
       snackbar.value.text = "Couldn't Delete Author";
+    })
+    .finally(()=>{
+      fetchData();
     });
 };
 
@@ -75,49 +78,28 @@ async function updateItem(Item) {
       snackbar.value.color = "red";
       console.log(error)
       snackbar.value.text = "Last Name cannot be empty";
+    })
+    .finally(()=>{
+      fetchData();
     });
 };
 
 async function addItem(Item) {
-  Item.genres = [
-    {
-      "id": 1,
-      "descriptor": "Horror",
-      "createdAt": "2025-06-05T05:26:33.000Z",
-      "updatedAt": "2025-06-05T05:26:33.000Z",
-      "genre_book": {
-        "createdAt": "2025-06-05T05:27:01.000Z",
-        "updatedAt": "2025-06-05T05:27:01.000Z",
-        "genreId": 1,
-        "bookId": 1
-      }
-    },
-    {
-      "id": 2,
-      "descriptor": "Romance",
-      "createdAt": "2025-06-05T05:26:33.000Z",
-      "updatedAt": "2025-06-05T05:26:33.000Z",
-      "genre_book": {
-        "createdAt": "2025-06-05T05:27:01.000Z",
-        "updatedAt": "2025-06-05T05:27:01.000Z",
-        "genreId": 2,
-        "bookId": 1
-      }
-    }
-  ];
-  console.log(Item)
   await BookServices.addBook(Item)
     .then(() => {
       fetchData()
       snackbar.value.value = true;
       snackbar.value.color = "green";
-      snackbar.value.text = "Author Added";
+      snackbar.value.text = "Book Added";
       isUpdateItem.value = false;
     })
     .catch((error) => {
       snackbar.value.value = true;
       snackbar.value.color = "red";
       snackbar.value.text = "Last Name cannot be empty";
+    })
+    .finally(()=>{
+      fetchData();
     });
 };
 
@@ -150,14 +132,16 @@ function closeSnackBar() {
   snackbar.value.value = false;
 }
 function selectableItems(selectedItems,dataArray){
+
   let difference = [];
   //Adding a n^2 loop since the filter difference is not acting right
   dataArray.forEach(l => {
     let isFound = false;
-    selectedItems.forEach(k => {
-      if(k.id == l.id)
-        isFound = true;
-    });
+    if(selectedItems)
+      selectedItems.forEach(k => {
+        if(k.id == l.id)
+          isFound = true;
+      });
     if(!isFound)
       difference.push(l);
   });
@@ -189,11 +173,17 @@ function selectableItems(selectedItems,dataArray){
       <tr v-for="item in filteredData" :key="item.id" class="mb-2">
         <td class = "cursor-pointer" @click="openUpdateItem(item, false)">{{ item.id }}</td>
         <td class = "cursor-pointer" @click="openUpdateItem(item, false)">{{ item.title }}</td>
-        <td class = "cursor-pointer" @click="openUpdateItem(item, false)">Input Authors</td>
+        <td v-if="item.authors.length == 1">{{ `${item.authors[0].firstName ?? ``} ${item.authors[0].lastName}` }}</td>
+        <td v-else-if="item.authors.length > 1">{{ `${item.authors[0].firstName ?? ``} ${item.authors[0].lastName}...` }}</td>
+        <td v-else>{{ `No Author Listed` }}</td>
         <td class = "cursor-pointer" @click="openUpdateItem(item, false)">{{ item.numPages }}</td>
         <td class = "cursor-pointer" @click="openUpdateItem(item, false)">{{ item.publicationDate.split('T')[0] }}</td>
-        <td class = "cursor-pointer" @click="openUpdateItem(item, false)">Input Publishers</td>
-        <td class = "cursor-pointer" @click="openUpdateItem(item, false)">Input Genres</td>
+        <td v-if="item.publishers.length == 1">{{ `${item.publishers[0].name}` }}</td>
+        <td v-else-if="item.publishers.length > 1">{{ `${item.publishers[0].name}...` }}</td>
+        <td v-else>{{ `No Publisher Listed` }}</td>
+        <td v-if="item.genres.length == 1">{{ `${item.genres[0].descriptor}` }}</td>
+        <td v-else-if="item.genres.length > 1">{{ `${item.genres[0].descriptor}...` }}</td>
+        <td v-else>{{ `No Genre Listed` }}</td>
         <td>
           <v-icon color="red" class="cursor-pointer" @click="openUpdateItem(item, false)"> mdi-pencil </v-icon>
           |
