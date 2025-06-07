@@ -2,10 +2,16 @@
 import { onMounted } from 'vue'
 import { ref, computed } from "vue";
 import BookServices from "../services/BookServices.js";
+import GenreServices from "../services/GenreServices.js";
+import AuthorServices from "../services/AuthorServices.js";
+import PublisherServices from "../services/PublisherServices.js";
 
-const Items = ref([])
-const columns = ref(["ID","FirstName","MiddleName","LastName"])
-const selectedItem = ref({})
+const Items = ref([]);
+const Genres = ref([])
+const Authors = ref([])
+const Publishers = ref([])
+const columns = ref(["ID","FirstName","MiddleName","LastName"]);
+const selectedItem = ref({});
 const isUpdateItem = ref(false);
 const addItemCheck = ref(false);
 const searchQuery = ref('');
@@ -55,23 +61,51 @@ async function deleteItem(id) {
     });
 };
 
-async function updateItem(Book) {
-  await BookServices.updateBook(Book)
+async function updateItem(Item) {
+  await BookServices.updateBook(Item)
     .then(() => {
       fetchData()
       snackbar.value.value = true;
       snackbar.value.color = "green";
-      snackbar.value.text = "Author Updated";
+      snackbar.value.text = "Book Updated";
       isUpdateItem.value = false;
     })
     .catch((error) => {
       snackbar.value.value = true;
       snackbar.value.color = "red";
+      console.log(error)
       snackbar.value.text = "Last Name cannot be empty";
     });
 };
 
 async function addItem(Item) {
+  Item.genres = [
+    {
+      "id": 1,
+      "descriptor": "Horror",
+      "createdAt": "2025-06-05T05:26:33.000Z",
+      "updatedAt": "2025-06-05T05:26:33.000Z",
+      "genre_book": {
+        "createdAt": "2025-06-05T05:27:01.000Z",
+        "updatedAt": "2025-06-05T05:27:01.000Z",
+        "genreId": 1,
+        "bookId": 1
+      }
+    },
+    {
+      "id": 2,
+      "descriptor": "Romance",
+      "createdAt": "2025-06-05T05:26:33.000Z",
+      "updatedAt": "2025-06-05T05:26:33.000Z",
+      "genre_book": {
+        "createdAt": "2025-06-05T05:27:01.000Z",
+        "updatedAt": "2025-06-05T05:27:01.000Z",
+        "genreId": 2,
+        "bookId": 1
+      }
+    }
+  ];
+  console.log(Item)
   await BookServices.addBook(Item)
     .then(() => {
       fetchData()
@@ -88,8 +122,14 @@ async function addItem(Item) {
 };
 
 async function fetchData() {
-  const response = await BookServices.getBooks()
-  Items.value = response.data
+  const dataResponse = await BookServices.getBooks();
+  Items.value = dataResponse.data;
+  const genreResponse = await GenreServices.getGenres();
+  Genres.value = genreResponse.data;
+  const authorResponse = await AuthorServices.getAuthor();
+  Authors.value = authorResponse.data;
+  const publisherResponse = await PublisherServices.getPublishers();
+  Publishers.value = publisherResponse.data;
 }
 
 function openUpdateItem(Item, addBook) {
@@ -108,6 +148,20 @@ function closeUpdateItem() {
 
 function closeSnackBar() {
   snackbar.value.value = false;
+}
+function selectableItems(selectedItems,dataArray){
+  let difference = [];
+  //Adding a n^2 loop since the filter difference is not acting right
+  dataArray.forEach(l => {
+    let isFound = false;
+    selectedItems.forEach(k => {
+      if(k.id == l.id)
+        isFound = true;
+    });
+    if(!isFound)
+      difference.push(l);
+  });
+  return difference
 }
 </script>
 
@@ -163,15 +217,27 @@ function closeSnackBar() {
           ></v-text-field>
           <v-combobox
             v-model="selectedItem.authors"
-            :items="selectedItem.authors"
+            :items="selectableItems(selectedItem.authors,Authors)"
             label="Authors"
             chips
             multiple
           >
+            <template v-slot:item="{ props, item }">
+              <v-chip
+                v-bind="props"
+                color="primary"
+                size="small"
+                variant="flat"
+                label
+              >
+                <strong>{{ item.value.firstName + " " + item.value.lastName }}</strong>&nbsp;
+              </v-chip>
+            </template>
             <template v-slot:chip="{ props, item }">
               <v-chip v-bind="props"
                 color="primary"
                 label
+                closable
               >
                 <strong>{{ item.value.firstName + " " + item.value.lastName }}</strong>&nbsp;
               </v-chip>
@@ -211,15 +277,27 @@ function closeSnackBar() {
           </v-menu>
           <v-combobox
             v-model="selectedItem.publishers"
-            :items="selectedItem.publishers"
+            :items="selectableItems(selectedItem.publishers,Publishers)"
             label="Publishers"
             chips
             multiple
           >
+            <template v-slot:item="{ props, item }">
+              <v-chip
+                v-bind="props"
+                color="primary"
+                size="small"
+                variant="flat"
+                label
+              >
+                {{ item.value.name }}
+              </v-chip>
+            </template>
             <template v-slot:chip="{ props, item }">
               <v-chip v-bind="props"
                 color="primary"
                 label
+                closable
               >
                 <strong>{{ item.value.name}}</strong>&nbsp;
               </v-chip>
@@ -227,15 +305,28 @@ function closeSnackBar() {
           </v-combobox>
           <v-combobox
             v-model="selectedItem.genres"
-            :items="selectedItem.genres"
+            :items="selectableItems(selectedItem.genres,Genres)"
             label="Genres"
             chips
             multiple
+            return-object
           >
+            <template v-slot:item="{ props, item }">
+              <v-chip
+                v-bind="props"
+                color="primary"
+                size="small"
+                variant="flat"
+                label
+              >
+                {{ item.value.descriptor }}
+              </v-chip>
+            </template>
             <template v-slot:chip="{ props, item }">
               <v-chip v-bind="props"
                 color="primary"
                 label
+                closable
               >
                 <strong>{{ item.value.descriptor }}</strong>&nbsp;
               </v-chip>
