@@ -24,6 +24,14 @@ const displayPublicationDate = computed(() => {
     ? new Date(selectedOwnedBook.value.book.publicationDate).toISOString().slice(0, 10)
     : '';
 });
+const pubDateMenu = ref(false);
+const purchDateMenu = ref(false);
+
+const displayPublicationDate = computed(() => {
+  return selectedOwnedBook.value.book?.publicationDate
+    ? new Date(selectedOwnedBook.value.book.publicationDate).toISOString().slice(0, 10)
+    : '';
+});
 
 const displayPurchaseDate = computed(() => {
   return selectedOwnedBook.value.dateBought
@@ -93,6 +101,7 @@ async function updateOwnedBook(ownedBookId, ownedBook, token) {
     numPages: ownedBook.book.numPages,
     publicationDate: ownedBook.book.publicationDate,
     readingStatusTypesId: statusId
+
   };
 
   await OwnedBooksServices.updateOwnedBook(ownedBookId, updatePayload, token)
