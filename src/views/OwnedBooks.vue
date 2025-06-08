@@ -16,13 +16,20 @@ const snackbar = ref({
   text: "",
 });
 
-const dateMenu = ref(false)
+const pubDateMenu = ref(false);
+const purchDateMenu = ref(false);
 
-const displayDate = computed(() => {
+const displayPublicationDate = computed(() => {
+  return selectedOwnedBook.value.book?.publicationDate
+    ? new Date(selectedOwnedBook.value.book.publicationDate).toISOString().slice(0, 10)
+    : '';
+});
+
+const displayPurchaseDate = computed(() => {
   return selectedOwnedBook.value.dateBought
     ? new Date(selectedOwnedBook.value.dateBought).toISOString().slice(0, 10)
     : '';
-})
+});
 
 const currencyFormat = new Intl.NumberFormat('en-US', {
   style: 'currency',
@@ -84,7 +91,9 @@ async function updateOwnedBook(ownedBookId, ownedBook, token) {
     title: ownedBook.book.title,
     link: ownedBook.book.link,
     numPages: ownedBook.book.numPages,
+    publicationDate: ownedBook.book.publicationDate,
     readingStatusTypesId: statusId
+
   };
 
   await OwnedBooksServices.updateOwnedBook(ownedBookId, updatePayload, token)
@@ -121,6 +130,7 @@ async function addOwnedBook(book, token) {
     title: book.book.title,
     link: book.book.link,
     numPages: book.book.numPages,
+    publicationDate: book.book.publicationDate,
     readingStatusTypesId: statusId
   };
 
@@ -162,6 +172,7 @@ function openUpdateOwnedBook(ownedBook, addOwnedBook) {
       book: {
         title: '',
         numPages: '',
+        publicationDate: '',
         link: ''
       },
       paidAmount: '',
@@ -232,6 +243,33 @@ function closeSnackBar() {
             required
           ></v-text-field>
 
+          <v-menu
+            v-model="pubDateMenu"
+            :close-on-content-click="false"
+            transition="scale-transition"
+            offset-y
+            max-width="290px"
+            min-width="auto"
+          >
+            <template v-slot:activator="{ on, attrs }">
+              <v-text-field
+                v-model="displayPublicationDate"
+                label="Publication Date"
+                readonly
+                v-on="on"
+                v-bind="attrs"
+                @click="pubDateMenu = true"
+              ></v-text-field>
+            </template>
+
+            <v-date-picker
+              v-model="selectedOwnedBook.book.publicationDate"
+              scrollable
+              :show-current="true"
+              @update:modelValue="pubDateMenu = false"
+            />
+          </v-menu>
+
           <v-text-field
             v-model="selectedOwnedBook.book.numPages"
             label="Number of Pages"
@@ -259,7 +297,7 @@ function closeSnackBar() {
           ></v-text-field>
 
           <v-menu
-            v-model="dateMenu"
+            v-model="purchDateMenu"
             :close-on-content-click="false"
             transition="scale-transition"
             offset-y
@@ -268,12 +306,12 @@ function closeSnackBar() {
           >
             <template v-slot:activator="{ on, attrs }">
               <v-text-field
-                v-model="displayDate"
+                v-model="displayPurchaseDate"
                 label="Purchase Date"
                 readonly
                 v-on="on"
                 v-bind="attrs"
-                @click="dateMenu = true"
+                @click="purchDateMenu = true"
               ></v-text-field>
             </template>
 
@@ -281,11 +319,8 @@ function closeSnackBar() {
               v-model="selectedOwnedBook.dateBought"
               scrollable
               :show-current="true"
-            >
-              <template v-slot:actions>
-                <v-btn text color="primary" @click="dateMenu = false">OK</v-btn>
-              </template>
-            </v-date-picker>
+              @update:modelValue="purchDateMenu = false"
+            />
           </v-menu>
 
           <v-combobox
