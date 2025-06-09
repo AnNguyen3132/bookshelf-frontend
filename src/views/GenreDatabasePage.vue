@@ -146,8 +146,8 @@ function closeSnackBar() {
       <v-card-text>
 
         <v-text-field
-          v-model="selectedGenre.genre"
-          label="Genre"
+          v-model="selectedGenre.descriptor"
+          label="Descriptor"
           required
         ></v-text-field>
 
