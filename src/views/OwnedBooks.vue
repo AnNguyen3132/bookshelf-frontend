@@ -161,9 +161,9 @@ async function addOwnedBook(book, token) {
 async function fetchOwnedBooks() {
   try {
     const response = await OwnedBooksServices.getOwnedBook(token);
-console.log("Fetched owned books:", response.data);
+    //console.log("Fetched owned books:", response.data);
     OwnedBooks.value = response.data;
-        console.log("Book rating for first book:", OwnedBooks.value[0]?.bookRating);
+    //console.log("Book rating for first book:", OwnedBooks.value[0]?.bookRating);
   } catch (err) {
     console.error("Error fetching books:", err.response?.data || err);
     snackbar.value = {
