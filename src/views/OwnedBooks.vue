@@ -358,12 +358,12 @@ function closeSnackBar() {
           ></v-textarea>
 
           <v-number-input control-variant="default"
-            v-model="selectedOwnedBook.BookRating.score"
+            v-model="selectedOwnedBook.bookRating.score"
             label="Rating (1-10)"
           ></v-number-input>
 
           <v-textarea
-            v-model="selectedOwnedBook.BookRating.description"
+            v-model="selectedOwnedBook.bookRating.description"
             label="Rating Description"
             rows="4"
             auto-grow
