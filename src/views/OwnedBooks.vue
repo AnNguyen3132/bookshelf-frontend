@@ -1,6 +1,7 @@
 <script setup>
 import { onMounted } from 'vue'
-import { ref, toRaw, computed  } from "vue";
+import { ref, toRaw, computed } from 'vue';
+import { nextTick } from 'vue';
 import OwnedBooksServices from "../services/OwnedBooksServices.js";
 const OwnedBooks = ref([])
 const selectedOwnedBook = ref({})
@@ -87,13 +88,17 @@ async function updateOwnedBook(ownedBookId, ownedBook, token) {
   const statusId = selectedStatus.id;
   
   const updatePayload = {
-    ...ownedBook,
     title: ownedBook.book.title,
     link: ownedBook.book.link,
     numPages: ownedBook.book.numPages,
     publicationDate: ownedBook.book.publicationDate,
-    readingStatusTypesId: statusId
-
+    paidAmount: ownedBook.paidAmount,
+    dateBought: ownedBook.dateBought,
+    userNotes: ownedBook.userNotes,
+    readingStatusTypesId: statusId,
+    score: ownedBook.bookRating.score,
+    description: ownedBook.bookRating.description,
+    ownedBookId: ownedBook.id
   };
 
   await OwnedBooksServices.updateOwnedBook(ownedBookId, updatePayload, token)
@@ -126,12 +131,16 @@ async function addOwnedBook(book, token) {
   const statusId = selectedStatus.id;
 
   const addPayload = {
-    ...book,
     title: book.book.title,
     link: book.book.link,
     numPages: book.book.numPages,
     publicationDate: book.book.publicationDate,
-    readingStatusTypesId: statusId
+    paidAmount: book.paidAmount,
+    dateBought: book.dateBought,
+    userNotes: book.userNotes,
+    readingStatusTypesId: statusId,
+    score: book.bookRating.score,
+    description: book.bookRating.description
   };
 
   await OwnedBooksServices.addOwnedBook(addPayload, token)
@@ -152,8 +161,9 @@ async function addOwnedBook(book, token) {
 async function fetchOwnedBooks() {
   try {
     const response = await OwnedBooksServices.getOwnedBook(token);
-
+console.log("Fetched owned books:", response.data);
     OwnedBooks.value = response.data;
+        console.log("Book rating for first book:", OwnedBooks.value[0]?.bookRating);
   } catch (err) {
     console.error("Error fetching books:", err.response?.data || err);
     snackbar.value = {
@@ -171,7 +181,7 @@ function openUpdateOwnedBook(ownedBook, addOwnedBook) {
     selectedOwnedBook.value = {
       book: {
         title: '',
-        numPages: '',
+        numPages: null,
         publicationDate: '',
         link: ''
       },
@@ -179,7 +189,13 @@ function openUpdateOwnedBook(ownedBook, addOwnedBook) {
       dateBought: '',
       userNotes: '',
       readingStatusTypesId: null,
-      ReadingStatusType: { statusName: '' }
+      ReadingStatusType: {
+        statusName: ''  
+      },
+      bookRating: {
+        score: null,
+        description: ''
+      }
     };
     statusNameInput.value = 'To Read';
   } else {
@@ -188,10 +204,14 @@ function openUpdateOwnedBook(ownedBook, addOwnedBook) {
     selectedOwnedBook.value = {
       ...cloned,
       book: cloned.Book ?? cloned.book,
+      bookRating: cloned.bookRating ?? cloned.BookRating
     };
     statusNameInput.value = cloned.ReadingStatusType.statusName || "";
-}
-  isUpdateOwnedBook.value = true;
+  }
+  // isUpdateOwnedBook.value = true;
+  nextTick(() => {
+    isUpdateOwnedBook.value = true;
+  });
 }
 
 function closeUpdateOwnedBook() {
@@ -256,7 +276,6 @@ function closeSnackBar() {
                 v-model="displayPublicationDate"
                 label="Publication Date"
                 readonly
-                v-on="on"
                 v-bind="attrs"
                 @click="pubDateMenu = true"
               ></v-text-field>
@@ -309,7 +328,6 @@ function closeSnackBar() {
                 v-model="displayPurchaseDate"
                 label="Purchase Date"
                 readonly
-                v-on="on"
                 v-bind="attrs"
                 @click="purchDateMenu = true"
               ></v-text-field>
@@ -334,6 +352,19 @@ function closeSnackBar() {
           <v-textarea
             v-model="selectedOwnedBook.userNotes"
             label="Notes"
+            rows="4"
+            auto-grow
+            outlined
+          ></v-textarea>
+
+          <v-number-input control-variant="default"
+            v-model="selectedOwnedBook.BookRating.score"
+            label="Rating (1-10)"
+          ></v-number-input>
+
+          <v-textarea
+            v-model="selectedOwnedBook.BookRating.description"
+            label="Rating Description"
             rows="4"
             auto-grow
             outlined
