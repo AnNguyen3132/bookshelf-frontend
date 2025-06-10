@@ -66,6 +66,9 @@ export default {
           <v-list-item :to="{ name: 'AuthorDatabasePage' }" link>
             <v-list-item-title>Author Database</v-list-item-title>
           </v-list-item>
+          <v-list-item :to="{ name: 'PublisherDatabasePage' }" link>
+            <v-list-item-title>Publisher Database</v-list-item-title>
+          </v-list-item>
           <v-list-item :to="{ name: 'GenreDatabasePage' }" link>
             <v-list-item-title>Genre Database</v-list-item-title>
           </v-list-item>

@@ -44,6 +44,11 @@ const router = createRouter({
       component: () => import("./views/AuthorDatabasePage.vue"),
     },
     {
+      path: "/PublisherDatabasePage",
+      name: "PublisherDatabasePage",
+      component: () => import("./views/PublisherDatabasePage.vue"),
+    },
+    {
       path: "/GenreDatabasePage",
       name: "GenreDatabasePage",
       component: () => import("./views/GenreDatabasePage.vue"),
