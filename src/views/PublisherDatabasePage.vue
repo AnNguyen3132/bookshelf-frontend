@@ -124,20 +124,20 @@ function closeSnackBar() {
         </tr>
       </thead>
     <tbody>
-      <tr v-for="author in filteredData" :key="author.id" class="mb-2">
-        <td class = "cursor-pointer" @click="openUpdatePublisher(author, false)">{{ author.id }}</td>
-        <td class = "cursor-pointer" @click="openUpdatePublisher(author, false)">{{ author.name }}</td>
+      <tr v-for="publisher in filteredData" :key="publisher.id" class="mb-2">
+        <td class = "cursor-pointer" @click="openUpdatePublisher(publisher, false)">{{ publisher.id }}</td>
+        <td class = "cursor-pointer" @click="openUpdatePublisher(publisher, false)">{{ publisher.name }}</td>
         <td>
-          <v-icon color="red" class="cursor-pointer" @click="openUpdatePublisher(author, false)"> mdi-pencil </v-icon>
+          <v-icon color="red" class="cursor-pointer" @click="openUpdatePublisher(publisher, false)"> mdi-pencil </v-icon>
           |
-          <v-icon color="red" class="cursor-pointer" @click="deletePublisher(author.id)"> mdi-delete </v-icon>
+          <v-icon color="red" class="cursor-pointer" @click="deletePublisher(publisher.id)"> mdi-delete </v-icon>
         </td>
       </tr>
     </tbody>
   </v-table>
   <v-card-actions>
     <v-spacer></v-spacer>
-    <v-btn variant="flat" color="primary" @click="openUpdatePublisher(author, true)">Add Author</v-btn>
+    <v-btn variant="flat" color="primary" @click="openUpdatePublisher(publisher, true)">Add Publisher</v-btn>
   </v-card-actions>
 
   <v-dialog persistent v-model="isUpdatePublisher" width="800">
