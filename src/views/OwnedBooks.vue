@@ -259,38 +259,22 @@ function closeSnackBar() {
           <v-text-field
             v-model="selectedOwnedBook.book.title"
             label="Title"
-            required
+            readonly
+            disabled
           ></v-text-field>
 
-          <v-menu
-            v-model="pubDateMenu"
-            :close-on-content-click="false"
-            transition="scale-transition"
-            offset-y
-            max-width="290px"
-            min-width="auto"
-          >
-            <template v-slot:activator="{ on, attrs }">
-              <v-text-field
-                v-model="displayPublicationDate"
-                label="Publication Date"
-                readonly
-                v-bind="attrs"
-                @click="pubDateMenu = true"
-              ></v-text-field>
-            </template>
-
-            <v-date-picker
-              v-model="selectedOwnedBook.book.publicationDate"
-              scrollable
-              :show-current="true"
-              @update:modelValue="pubDateMenu = false"
-            />
-          </v-menu>
+          <v-text-field
+            v-model="displayPublicationDate"
+            label="Publication Date"
+            readonly
+            disabled
+          ></v-text-field>
 
           <v-text-field
             v-model="selectedOwnedBook.book.numPages"
             label="Number of Pages"
+            readonly
+            disabled
           ></v-text-field>
 
           <v-text-field v-if="addOwnedBookCheck"
