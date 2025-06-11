@@ -84,6 +84,13 @@ function closeUpdateItem() {
 function closeSnackBar() {
   snackbar.value.value = false;
 }
+const regex = /((([A-Za-z]{3,9}:(?:\/\/)?)(?:[-;:&=\+\$,\w]+@)?[A-Za-z0-9.-]+|(?:www.|[-;:&=\+\$,\w]+@)[A-Za-z0-9.-]+)((?:\/[\+~%\/.\w-_]*)?\??(?:[-\+=&;%@.\w_]*)#?(?:[\w]*))?)/;
+function isValid (link) {
+    if (!link)
+      return false;
+    else
+      return link.match(regex);
+  }
 </script>
 
 <template>
@@ -95,6 +102,7 @@ function closeSnackBar() {
           <th class="text-left">Authors</th>
           <th class="text-left">Genres</th>
           <th class="text-left">Date Added</th>
+          <th class="text-left">Link</th>
           <th class="text-left">Actions</th>
         </tr>
       </thead>
@@ -108,6 +116,10 @@ function closeSnackBar() {
           <td v-else-if="item.book.genres.length > 1">{{ `${item.book.genres[0].descriptor}...` }}</td>
           <td v-else>{{ `No Genre Listed` }}</td>
           <td>{{ item.dateAdded.split('T')[0] }}</td>
+          <td>
+            <a v-if="isValid(item.book.link)" class="primary" :href="item.book.link" target="_blank">Buy Book</a>
+            <a v-else>Invalid Link</a>
+          </td>
           <td>
             <v-icon color="red" class="cursor-pointer" @click="openUpdateItem(item)"> mdi-pencil </v-icon>
             | 
@@ -252,5 +264,17 @@ function closeSnackBar() {
   text-align: center;
   margin: 0.5rem 0;
   font-weight: 600;
+}
+a {
+  display: grid;
+  align-content: center;
+  border-radius: 5px;
+  color: white;
+  background-color: #80162B;
+  text-decoration: none;
+  text-align: center;
+}
+a:hover {
+  background-color: #80162b9c;
 }
 </style>
