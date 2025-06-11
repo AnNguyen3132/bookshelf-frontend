@@ -118,47 +118,47 @@ function isValid (link) {
 <template>
   <h2 class="title">Book Search</h2>
   <v-table v-if="filteredData.length">
-      <thead>
-        <tr>
-          <th class="text-left"
-            @click="sortBy('Title')"
-            :class="{ active: sortKey == 'Title' }"
-          >
-            Title
-            <span class="arrow" :class="sortOrders['Title'] > 0 > 0 ? 'asc' : 'dsc'"/>
-          </th>
-          <th class="text-left"
-            @click="sortBy('*Authors')"
-            :class="{ active: sortKey == '*Authors' }"
-          >
-            Author
-            <span class="arrow" :class="sortOrders['*Authors'] > 0 > 0 ? 'asc' : 'dsc'"/>  
-          </th>
-          <th class="text-left"
-            @click="sortBy('PublicationDate')"
-            :class="{ active: sortKey == 'PublicationDate' }"
-          >
-            Publication Date
-            <span class="arrow" :class="sortOrders['PublicationDate'] > 0 > 0 ? 'asc' : 'dsc'"/>
-          </th>
-          <th class="text-left"
-            @click="sortBy('*Publishers')"
-            :class="{ active: sortKey == '*Publishers' }"
-          >
-            Publisher
-            <span class="arrow" :class="sortOrders['*Publishers'] > 0 > 0 ? 'asc' : 'dsc'"/>
-          </th>
-          <th class="text-left"
-            @click="sortBy('*Genres')"
-            :class="{ active: sortKey == '*Genres' }"
-          >
-            Genre
-            <span class="arrow" :class="sortOrders['*Genres'] > 0 > 0 ? 'asc' : 'dsc'"/>
-          </th>
-          <th class="text-left">Link</th>
-          <th class="text-left">Action</th>
-        </tr>
-      </thead>
+    <thead>
+      <tr>
+        <th class="text-left"
+          @click="sortBy('Title')"
+          :class="{ active: sortKey == 'Title' }"
+        >
+          Title
+          <span class="arrow" :class="sortOrders['Title'] > 0 > 0 ? 'asc' : 'dsc'"/>
+        </th>
+        <th class="text-left"
+          @click="sortBy('*Authors')"
+          :class="{ active: sortKey == '*Authors' }"
+        >
+          Author
+          <span class="arrow" :class="sortOrders['*Authors'] > 0 > 0 ? 'asc' : 'dsc'"/>  
+        </th>
+        <th class="text-left"
+          @click="sortBy('PublicationDate')"
+          :class="{ active: sortKey == 'PublicationDate' }"
+        >
+          Publication Date
+          <span class="arrow" :class="sortOrders['PublicationDate'] > 0 > 0 ? 'asc' : 'dsc'"/>
+        </th>
+        <th class="text-left"
+          @click="sortBy('*Publishers')"
+          :class="{ active: sortKey == '*Publishers' }"
+        >
+          Publisher
+          <span class="arrow" :class="sortOrders['*Publishers'] > 0 > 0 ? 'asc' : 'dsc'"/>
+        </th>
+        <th class="text-left"
+          @click="sortBy('*Genres')"
+          :class="{ active: sortKey == '*Genres' }"
+        >
+          Genre
+          <span class="arrow" :class="sortOrders['*Genres'] > 0 > 0 ? 'asc' : 'dsc'"/>
+        </th>
+        <th class="text-left">Link</th>
+        <th class="text-left">Action</th>
+      </tr>
+    </thead>
     <tbody>
       <tr v-for="book in filteredData" :key="book.id">
         <td>{{ book.title }}</td>
