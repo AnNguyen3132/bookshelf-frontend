@@ -14,8 +14,8 @@ const snackbar = ref({
 });
 const pubDateMenu = ref(false);
 const displayDate = computed(() => {
-  return selectedItem.value.book?.publicationDate
-    ? new Date(selectedItem.value.book.publicationDate).toISOString().slice(0, 10)
+  return selectedItem.value.dateAdded
+    ? new Date(selectedItem.value.dateAdded).toISOString().slice(0, 10)
     : '';
 });
 
@@ -107,7 +107,7 @@ function closeSnackBar() {
           <td v-if="item.book.genres.length == 1">{{ `${item.book.genres[0].descriptor}` }}</td>
           <td v-else-if="item.book.genres.length > 1">{{ `${item.book.genres[0].descriptor}...` }}</td>
           <td v-else>{{ `No Genre Listed` }}</td>
-          <td>Input Date Added</td>
+          <td>{{ item.dateAdded.split('T')[0] }}</td>
           <td>
             <v-icon color="red" class="cursor-pointer" @click="openUpdateItem(item)"> mdi-pencil </v-icon>
             | 
@@ -123,7 +123,7 @@ function closeSnackBar() {
     <v-dialog persistent v-model="isUpdateItem" width="800">
       <v-card class="rounded-lg elevation-5">
         <v-card-title class="headline mb-2">
-          {{ 'Update/View Book Details' }}
+          {{ 'Update/View Wishlist Details' }}
         </v-card-title>        
         <v-card-text>
           <v-text-field
@@ -149,7 +149,7 @@ function closeSnackBar() {
             </template>
           </v-combobox>
           <v-text-field
-            v-model="selectedItem.book.publicationDate"
+            v-model="selectedItem.book.publicationDate.split('T')[0]"
             label="Publish Date(Read Only)"
             readonly
           ></v-text-field>

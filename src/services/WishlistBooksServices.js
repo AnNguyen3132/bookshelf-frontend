@@ -25,7 +25,7 @@ export default {
     });
   },
 
-  deleteOwnedBook(wishlistBookId, token) {
+  deleteWishlistBook(wishlistBookId, token) {
     return apiClient.delete(`/WishlistBook/${wishlistBookId}`, {
       headers: {
         Authorization: `Bearer ${token}`,
