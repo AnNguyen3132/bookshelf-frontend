@@ -3,7 +3,13 @@ import { onMounted } from 'vue'
 import { ref, toRaw, computed } from 'vue';
 import { nextTick } from 'vue';
 import OwnedBooksServices from "../services/OwnedBooksServices.js";
+import GenreServices from "../services/GenreServices.js";
+import AuthorServices from "../services/AuthorServices.js";
+import PublisherServices from "../services/PublisherServices.js";
 const OwnedBooks = ref([])
+const Genres = ref([])
+const Authors = ref([])
+const Publishers = ref([])
 const selectedOwnedBook = ref({})
 const isUpdateOwnedBook = ref(false);
 const addOwnedBookCheck = ref(false);
@@ -88,10 +94,6 @@ async function updateOwnedBook(ownedBookId, ownedBook, token) {
   const statusId = selectedStatus.id;
   
   const updatePayload = {
-    title: ownedBook.book.title,
-    link: ownedBook.book.link,
-    numPages: ownedBook.book.numPages,
-    publicationDate: ownedBook.book.publicationDate,
     paidAmount: ownedBook.paidAmount,
     dateBought: ownedBook.dateBought,
     userNotes: ownedBook.userNotes,
@@ -162,7 +164,12 @@ async function fetchOwnedBooks() {
   try {
     const response = await OwnedBooksServices.getOwnedBook(token);
     OwnedBooks.value = response.data;
-    //console.log("Book rating for first book:", OwnedBooks.value[0]?.bookRating);
+    const genreResponse = await GenreServices.getGenres();
+    Genres.value = genreResponse.data;
+    const authorResponse = await AuthorServices.getAuthor();
+    Authors.value = authorResponse.data;
+    const publisherResponse = await PublisherServices.getPublishers();
+    Publishers.value = publisherResponse.data;
   } catch (err) {
     console.error("Error fetching books:", err.response?.data || err);
     snackbar.value = {
@@ -184,6 +191,9 @@ function openUpdateOwnedBook(ownedBook, addOwnedBook) {
         publicationDate: '',
         link: ''
       },
+      authors: [],
+      genres: [],
+      publisher: [],
       paidAmount: '',
       dateBought: '',
       userNotes: '',
@@ -198,16 +208,18 @@ function openUpdateOwnedBook(ownedBook, addOwnedBook) {
     };
     statusNameInput.value = 'To Read';
   } else {
-    // Clone and normalize Book to book
+    // Clone and normalize
     const cloned = JSON.parse(JSON.stringify(ownedBook));
     selectedOwnedBook.value = {
       ...cloned,
       book: cloned.Book ?? cloned.book,
-      bookRating: cloned.bookRating ?? cloned.BookRating
+      bookRating: cloned.bookRating ?? cloned.BookRating,
+      authors: cloned.book.authors ?? [],
+      genres: cloned.book.genres ?? [],
+      publishers: cloned.book.publishers ?? []
     };
     statusNameInput.value = cloned.ReadingStatusType.statusName || "";
   }
-  // isUpdateOwnedBook.value = true;
   nextTick(() => {
     isUpdateOwnedBook.value = true;
   });
@@ -220,6 +232,7 @@ function closeUpdateOwnedBook() {
 function closeSnackBar() {
   snackbar.value.value = false;
 }
+
 </script>
 
 <template>
@@ -228,6 +241,8 @@ function closeSnackBar() {
       <thead>
         <tr>
           <th class="text-left">Title</th>
+          <th class="text-left">Authors</th>
+          <th class="text-left">Genres</th>
           <th class="text-left">Purchase Price</th>
           <th class="text-left">Status</th>
           <th class="text-left">Actions</th>
@@ -236,6 +251,28 @@ function closeSnackBar() {
       <tbody>
         <tr v-for="(ownedBook, index) in OwnedBooks" :key="index" class="mb-2">
           <td class = "cursor-pointer" @click="openUpdateOwnedBook(ownedBook, false)">{{ ownedBook.book.title || 'Untitiled' }}</td>
+          <td class="cursor-pointer" @click="openUpdateOwnedBook(ownedBook, false)">
+            <template v-if="ownedBook.book.authors?.length === 1">
+              {{ `${ownedBook.book.authors[0].firstName ?? ''} ${ownedBook.book.authors[0].lastName ?? ''}` }}
+            </template>
+            <template v-else-if="ownedBook.book.authors?.length > 1">
+              {{ `${ownedBook.book.authors[0].firstName ?? ''} ${ownedBook.book.authors[0].lastName ?? ''}...` }}
+            </template>
+            <template v-else>
+              No Author Listed
+            </template>
+          </td>
+          <td class="cursor-pointer" @click="openUpdateOwnedBook(ownedBook, false)">
+            <template v-if="ownedBook.book.genres?.length === 1">
+              {{ `${ownedBook.book.genres[0].descriptor}` }}
+            </template>
+            <template v-else-if="ownedBook.book.genres?.length > 1">
+              {{ `${ownedBook.book.genres[0].descriptor}...` }}
+            </template>
+            <template v-else>
+              No Genre Listed
+            </template>
+          </td>
           <td class = "cursor-pointer" @click="openUpdateOwnedBook(ownedBook, false)">{{ currencyFormat.format(ownedBook.paidAmount) }}</td>
           <td class = "cursor-pointer" @click="openUpdateOwnedBook(ownedBook, false)">{{ ownedBook.ReadingStatusType.statusName || 'No Status' }}</td>
           <td>
@@ -281,6 +318,7 @@ function closeSnackBar() {
             v-model="selectedOwnedBook.book.link"
             label="Amazon Link"
           />
+          
 
           <div v-else-if="selectedOwnedBook.book.link && !addOwnedBookCheck" class="mt-1 mb-3">
             <a
@@ -292,6 +330,48 @@ function closeSnackBar() {
               Amazon Link
             </a>
           </div>
+
+          <v-combobox
+            v-model="selectedOwnedBook.authors"
+            label="Authors"
+            chips
+            multiple
+            disabled
+          >
+            <template v-slot:chip="{ props, item }">
+              <v-chip v-bind="props" color="primary" label>
+                <strong>{{ item.value.firstName + " " + item.value.lastName }}</strong>&nbsp;
+              </v-chip>
+            </template>
+          </v-combobox>
+
+          <v-combobox
+            v-model="selectedOwnedBook.genres"
+            label="Genres"
+            chips
+            multiple
+            disabled
+          >
+            <template v-slot:chip="{ props, item }">
+              <v-chip v-bind="props" color="primary" label>
+                <strong>{{ item.value.descriptor }}</strong>&nbsp;
+              </v-chip>
+            </template>
+          </v-combobox>
+
+          <v-combobox
+            v-model="selectedOwnedBook.publishers"
+            label="Publishers"
+            chips
+            multiple
+            disabled
+          >
+            <template v-slot:chip="{ props, item }">
+              <v-chip v-bind="props" color="primary" label>
+                <strong>{{ item.value.name }}</strong>&nbsp;
+              </v-chip>
+            </template>
+          </v-combobox>
 
           <v-text-field
             v-model="selectedOwnedBook.paidAmount"
