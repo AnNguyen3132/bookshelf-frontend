@@ -1,5 +1,6 @@
 <script setup>
 import { ref, computed } from "vue";
+import OwnedBooksServices from "../services/OwnedBooksServices.js";
 
 const selectedItem = ref({})
 const isView = ref(false);
@@ -11,6 +12,9 @@ const snackbar = ref({
 
 const props = defineProps({
   data: Array,
+  dataFetch: Function,
+  owned: Array,
+  wishlist: Array,
   columns: Array,
   filterKey: String
 })
@@ -100,6 +104,49 @@ function openViewer(book) {
   selectedItem.value = {...book}
   isView.value = true;
 }
+async function addOwnedBook(book, token) {
+    let { dataFetch } = props;
+  const selectedStatus = { id: 1, statusName: "To Read" };//Just setting new Owned Books to this Status
+  if (!selectedStatus) {
+    snackbar.value.text = "Invalid reading status. Please choose a valid option.";
+    snackbar.value.color = "red";
+    snackbar.value.value = true;
+    return;
+  }
+  const statusId = selectedStatus.id;
+  const addPayload = {
+    title: book.title,
+    link: book.link,
+    numPages: book.numPages,
+    publicationDate: book.publicationDate,
+    paidAmount: 0,
+    dateBought: new Date().toISOString().split('T')[0],
+    userNotes: "",
+    readingStatusTypesId: statusId,
+    score: 1,
+    description: ""
+  };
+  await OwnedBooksServices.addOwnedBook(addPayload, token)
+    .then(() => {
+      snackbar.value.value = true;
+      snackbar.value.color = "green";
+      snackbar.value.text = "Book Mark as Owned";
+    })
+    .catch((error) => {
+      snackbar.value.value = true;
+      snackbar.value.color = "red";
+      snackbar.value.text = error.status || "An unexpected error occurred";
+    })
+    .finally(()=>{
+      try{
+        dataFetch();
+      }
+      catch(error)
+      {
+        console.log("Error Fetching after posting");
+      }
+    });
+};
 function closeViewer() {
   isView.value = false;
 }
@@ -112,53 +159,68 @@ function isValid (link) {
       return false;
     else
       return link.match(regex);
-  }
+}
+//Function is used to determine if book is an Owned Book
+function isOwnedBook(item){
+  let { owned } = props;
+  let isOwned = false;
+  if(owned)
+    owned.forEach((k)=>{
+      if(k.bookId == item.id)
+        isOwned = true;
+    });
+  return isOwned;
+}
+//Function is used to determine if book is a Wishlist Book
+// function isWishlistBook(item.id){
+
+// }
 </script>
 
 <template>
   <h2 class="title">Book Search</h2>
   <v-table v-if="filteredData.length">
-    <thead>
-      <tr>
-        <th class="text-left"
-          @click="sortBy('Title')"
-          :class="{ active: sortKey == 'Title' }"
-        >
-          Title
-          <span class="arrow" :class="sortOrders['Title'] > 0 > 0 ? 'asc' : 'dsc'"/>
-        </th>
-        <th class="text-left"
-          @click="sortBy('*Authors')"
-          :class="{ active: sortKey == '*Authors' }"
-        >
-          Author
-          <span class="arrow" :class="sortOrders['*Authors'] > 0 > 0 ? 'asc' : 'dsc'"/>  
-        </th>
-        <th class="text-left"
-          @click="sortBy('PublicationDate')"
-          :class="{ active: sortKey == 'PublicationDate' }"
-        >
-          Publication Date
-          <span class="arrow" :class="sortOrders['PublicationDate'] > 0 > 0 ? 'asc' : 'dsc'"/>
-        </th>
-        <th class="text-left"
-          @click="sortBy('*Publishers')"
-          :class="{ active: sortKey == '*Publishers' }"
-        >
-          Publisher
-          <span class="arrow" :class="sortOrders['*Publishers'] > 0 > 0 ? 'asc' : 'dsc'"/>
-        </th>
-        <th class="text-left"
-          @click="sortBy('*Genres')"
-          :class="{ active: sortKey == '*Genres' }"
-        >
-          Genre
-          <span class="arrow" :class="sortOrders['*Genres'] > 0 > 0 ? 'asc' : 'dsc'"/>
-        </th>
-        <th class="text-left">Link</th>
-        <th class="text-left">Action</th>
-      </tr>
-    </thead>
+      <thead>
+        <tr>
+          <th class="text-left"
+            @click="sortBy('Title')"
+            :class="{ active: sortKey == 'Title' }"
+          >
+            Title
+            <span class="arrow" :class="sortOrders['Title'] > 0 > 0 ? 'asc' : 'dsc'"/>
+          </th>
+          <th class="text-left"
+            @click="sortBy('*Authors')"
+            :class="{ active: sortKey == '*Authors' }"
+          >
+            Author
+            <span class="arrow" :class="sortOrders['*Authors'] > 0 > 0 ? 'asc' : 'dsc'"/>  
+          </th>
+          <th class="text-left"
+            @click="sortBy('PublicationDate')"
+            :class="{ active: sortKey == 'PublicationDate' }"
+          >
+            Publication Date
+            <span class="arrow" :class="sortOrders['PublicationDate'] > 0 > 0 ? 'asc' : 'dsc'"/>
+          </th>
+          <th class="text-left"
+            @click="sortBy('*Publishers')"
+            :class="{ active: sortKey == '*Publishers' }"
+          >
+            Publisher
+            <span class="arrow" :class="sortOrders['*Publishers'] > 0 > 0 ? 'asc' : 'dsc'"/>
+          </th>
+          <th class="text-left"
+            @click="sortBy('*Genres')"
+            :class="{ active: sortKey == '*Genres' }"
+          >
+            Genre
+            <span class="arrow" :class="sortOrders['*Genres'] > 0 > 0 ? 'asc' : 'dsc'"/>
+          </th>
+          <th class="text-left">Link</th>
+          <th class="text-left">Action</th>
+        </tr>
+      </thead>
     <tbody>
       <tr v-for="book in filteredData" :key="book.id">
         <td>{{ book.title }}</td>
@@ -177,7 +239,8 @@ function isValid (link) {
           <a v-else>Invalid Link</a>
         </td>
         <td>
-          <v-icon color="red" class="cursor-pointer" @click="alert('Update when Wishlist Book is in system')"> mdi-bag-checked </v-icon>
+          <v-icon v-if="!isOwnedBook(book)" color="red" class="cursor-pointer" @click="addOwnedBook(book)"> mdi-bag-checked </v-icon>
+          <v-icon v-else color="red"> mdi-checkbox-marked </v-icon>
           |
           <v-icon color="red" class="cursor-pointer" @click="alert('Update when Owned Book is in system')"> mdi-bookshelf </v-icon>
           |
