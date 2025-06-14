@@ -12,7 +12,6 @@ const Authors = ref([])
 const Publishers = ref([])
 const selectedOwnedBook = ref({})
 const isUpdateOwnedBook = ref(false);
-const addOwnedBookCheck = ref(false);
 const statusOptions = ref([]);
 const statusNameInput = ref("");
 const userData = JSON.parse(localStorage.getItem("user"));
@@ -118,58 +117,19 @@ async function updateOwnedBook(ownedBookId, ownedBook, token) {
     });
 };
 
-async function addOwnedBook(book, token) {
-  const selectedStatus = statusOptions.value.find(
-    option => option.statusName === statusNameInput.value
-  );
-
-  if (!selectedStatus) {
-    snackbar.value.text = "Invalid reading status. Please choose a valid option.";
-    snackbar.value.color = "red";
-    snackbar.value.value = true;
-    return;
-  }
-
-  const statusId = selectedStatus.id;
-
-  const addPayload = {
-    title: book.book.title,
-    link: book.book.link,
-    numPages: book.book.numPages,
-    publicationDate: book.book.publicationDate,
-    paidAmount: book.paidAmount,
-    dateBought: book.dateBought,
-    userNotes: book.userNotes,
-    readingStatusTypesId: statusId,
-    score: book.bookRating.score,
-    description: book.bookRating.description
-  };
-
-  await OwnedBooksServices.addOwnedBook(addPayload, token)
-    .then(() => {
-      fetchOwnedBooks()
-      snackbar.value.value = true;
-      snackbar.value.color = "green";
-      snackbar.value.text = "Book Added";
-      isUpdateOwnedBook.value = false;
-    })
-    .catch((error) => {
-      snackbar.value.value = true;
-      snackbar.value.color = "red";
-      snackbar.value.text = error.response.data.message || "An unexpected error occurred";
-    });
-};
-
 async function fetchOwnedBooks() {
   try {
     const response = await OwnedBooksServices.getOwnedBook(token);
     OwnedBooks.value = response.data;
+<<<<<<< 13351-JM
     const genreResponse = await GenreServices.getGenres();
     Genres.value = genreResponse.data;
     const authorResponse = await AuthorServices.getAuthor();
     Authors.value = authorResponse.data;
     const publisherResponse = await PublisherServices.getPublishers();
     Publishers.value = publisherResponse.data;
+=======
+>>>>>>> dev
   } catch (err) {
     console.error("Error fetching books:", err.response?.data || err);
     snackbar.value = {
@@ -180,11 +140,11 @@ async function fetchOwnedBooks() {
   }
 }
 
-function openUpdateOwnedBook(ownedBook, addOwnedBook) {
-  addOwnedBookCheck.value = addOwnedBook;
-    
-  if(addOwnedBookCheck.value) {
+function openUpdateOwnedBook(ownedBook){
+  // Clone and normalize Book to book
+  const cloned = JSON.parse(JSON.stringify(ownedBook));
     selectedOwnedBook.value = {
+<<<<<<< 13351-JM
       book: {
         title: '',
         numPages: null,
@@ -220,6 +180,13 @@ function openUpdateOwnedBook(ownedBook, addOwnedBook) {
     };
     statusNameInput.value = cloned.ReadingStatusType.statusName || "";
   }
+=======
+    ...cloned,
+    book: cloned.Book ?? cloned.book,
+    bookRating: cloned.bookRating ?? cloned.BookRating
+  };
+  statusNameInput.value = cloned.ReadingStatusType.statusName || "";
+>>>>>>> dev
   nextTick(() => {
     isUpdateOwnedBook.value = true;
   });
@@ -285,13 +252,12 @@ function closeSnackBar() {
     </v-table>
     <v-card-actions>
       <v-spacer></v-spacer>
-      <v-btn variant="flat" color="primary" @click="openUpdateOwnedBook(null, true)">Add Book</v-btn>
     </v-card-actions>
 
     <v-dialog persistent v-model="isUpdateOwnedBook" width="800">
       <v-card class="rounded-lg elevation-5">
         <v-card-title class="headline mb-2">
-          {{ addOwnedBookCheck ? 'Book Details' : 'Update Book Details' }}
+          {{ 'Update Book Details' }}
         </v-card-title>        <v-card-text>
           <v-text-field
             v-model="selectedOwnedBook.book.title"
@@ -314,6 +280,7 @@ function closeSnackBar() {
             disabled
           ></v-text-field>
 
+<<<<<<< 13351-JM
           <v-text-field v-if="addOwnedBookCheck"
             v-model="selectedOwnedBook.book.link"
             label="Amazon Link"
@@ -321,6 +288,9 @@ function closeSnackBar() {
           
 
           <div v-else-if="selectedOwnedBook.book.link && !addOwnedBookCheck" class="mt-1 mb-3">
+=======
+          <div class="mt-1 mb-3">
+>>>>>>> dev
             <a
               :href="selectedOwnedBook.book.link"
               target="_blank"
@@ -442,11 +412,8 @@ function closeSnackBar() {
             @click="closeUpdateOwnedBook()"
             >Close</v-btn
           >
-          <v-btn v-if="!addOwnedBookCheck" variant="flat" color="primary" @click="updateOwnedBook(selectedOwnedBook.id, selectedOwnedBook, token)"
+          <v-btn variant="flat" color="primary" @click="updateOwnedBook(selectedOwnedBook.id, selectedOwnedBook, token)"
             >Update Book</v-btn
-          >
-          <v-btn v-if="addOwnedBookCheck" variant="flat" color="primary" @click="addOwnedBook(selectedOwnedBook, token)"
-            >Add Book</v-btn
           >
         </v-card-actions>
       </v-card>
