@@ -2,7 +2,6 @@
 import { ref, computed } from "vue";
 import OwnedBooksServices from "../services/OwnedBooksServices.js";
 import WishlistBooksServices from "../services/WishlistBooksServices.js";
-
 const selectedItem = ref({})
 const isView = ref(false);
 const snackbar = ref({
@@ -19,7 +18,6 @@ const props = defineProps({
   columns: Array,
   filterKey: String
 })
-
 const sortKey = ref('')
 const sortOrders = ref(
   props.columns.reduce((o, key) => ((o[key] = 1), o), {})
@@ -274,14 +272,14 @@ function isWishlistBook(item){
           <a v-else>Invalid Link</a>
         </td>
         <td>
-          <v-icon v-if="!isOwnedBook(book)" color="red" class="cursor-pointer" @click="addOwnedBook(book)"> mdi-bag-checked </v-icon>
-          <v-icon v-else color="red"> mdi-checkbox-marked </v-icon>
+          <v-icon v-if="!isOwnedBook(book)" color="red" class="cursor-pointer" @click="addOwnedBook(book)" title="Add to Owned Books"> mdi-bag-checked </v-icon>
+          <v-icon v-else color="red" title="Already Owned Book"> mdi-checkbox-marked </v-icon>
           |
-          <v-icon v-if="isOwnedBook(book)" color="red"> mdi-block-helper </v-icon>
-          <v-icon v-else-if="isWishlistBook(book)" color="red"> mdi-checkbox-marked </v-icon>
-          <v-icon v-else color="red" class="cursor-pointer" @click="addWishlistBook(book)"> mdi-bookshelf </v-icon>
+          <v-icon v-if="isOwnedBook(book)" color="red" title="Already Owned Book">mdi-block-helper</v-icon>
+          <v-icon v-else-if="isWishlistBook(book)" color="red" title="Already Wishlisted Book"> mdi-checkbox-marked </v-icon>
+          <v-icon v-else color="red" class="cursor-pointer" @click="addWishlistBook(book)" title="Add to Wishlisted Books"> mdi-bookshelf </v-icon>
           |
-          <v-icon color="red" class="cursor-pointer" @click="openViewer(book)"> mdi-eye </v-icon>
+          <v-icon color="red" class="cursor-pointer" @click="openViewer(book)" title="View Book Details"> mdi-eye </v-icon>
         </td>
       </tr>
     </tbody>
