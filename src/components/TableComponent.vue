@@ -1,7 +1,7 @@
 <script setup>
 import { ref, computed } from "vue";
 import OwnedBooksServices from "../services/OwnedBooksServices.js";
-
+import WishlistBooksServices from "../services/WishlistBooksServices.js";
 const selectedItem = ref({})
 const isView = ref(false);
 const snackbar = ref({
@@ -18,7 +18,6 @@ const props = defineProps({
   columns: Array,
   filterKey: String
 })
-
 const sortKey = ref('')
 const sortOrders = ref(
   props.columns.reduce((o, key) => ((o[key] = 1), o), {})
@@ -147,6 +146,33 @@ async function addOwnedBook(book, token) {
       }
     });
 };
+async function addWishlistBook(book, token) {
+    let { dataFetch } = props;
+  const addPayload = {
+    bookId: book.id,
+    dateAdded: new Date().toISOString().split('T')[0],
+  };
+  await WishlistBooksServices.addWishlistBook(addPayload, token)
+    .then(() => {
+      snackbar.value.value = true;
+      snackbar.value.color = "green";
+      snackbar.value.text = "Book Mark as Wishlisted";
+    })
+    .catch((error) => {
+      snackbar.value.value = true;
+      snackbar.value.color = "red";
+      snackbar.value.text = error.status || "An unexpected error occurred";
+    })
+    .finally(()=>{
+      try{
+        dataFetch();
+      }
+      catch(error)
+      {
+        console.log("Error Fetching after posting");
+      }
+    });
+};
 function closeViewer() {
   isView.value = false;
 }
@@ -172,9 +198,16 @@ function isOwnedBook(item){
   return isOwned;
 }
 //Function is used to determine if book is a Wishlist Book
-// function isWishlistBook(item.id){
-
-// }
+function isWishlistBook(item){
+  let { wishlist } = props;
+  let isWishlist = false;
+  if(wishlist)
+    wishlist.forEach((k)=>{
+      if(k.bookId == item.id)
+        isWishlist = true;
+    });
+  return isWishlist;
+}
 </script>
 
 <template>
@@ -239,12 +272,14 @@ function isOwnedBook(item){
           <a v-else>Invalid Link</a>
         </td>
         <td>
-          <v-icon v-if="!isOwnedBook(book)" color="red" class="cursor-pointer" @click="addOwnedBook(book)"> mdi-bag-checked </v-icon>
-          <v-icon v-else color="red"> mdi-checkbox-marked </v-icon>
+          <v-icon v-if="!isOwnedBook(book)" color="red" class="cursor-pointer" @click="addOwnedBook(book)" title="Add to Owned Books"> mdi-bag-checked </v-icon>
+          <v-icon v-else color="red" title="Already Owned Book"> mdi-checkbox-marked </v-icon>
           |
-          <v-icon color="red" class="cursor-pointer" @click="alert('Update when Owned Book is in system')"> mdi-bookshelf </v-icon>
+          <v-icon v-if="isOwnedBook(book)" color="red" title="Already Owned Book">mdi-block-helper</v-icon>
+          <v-icon v-else-if="isWishlistBook(book)" color="red" title="Already Wishlisted Book"> mdi-checkbox-marked </v-icon>
+          <v-icon v-else color="red" class="cursor-pointer" @click="addWishlistBook(book)" title="Add to Wishlisted Books"> mdi-bookshelf </v-icon>
           |
-          <v-icon color="red" class="cursor-pointer" @click="openViewer(book)"> mdi-eye </v-icon>
+          <v-icon color="red" class="cursor-pointer" @click="openViewer(book)" title="View Book Details"> mdi-eye </v-icon>
         </td>
       </tr>
     </tbody>
