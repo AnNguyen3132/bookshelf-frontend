@@ -5,7 +5,6 @@ import BookServices from "../services/BookServices.js";
 import GenreServices from "../services/GenreServices.js";
 import AuthorServices from "../services/AuthorServices.js";
 import PublisherServices from "../services/PublisherServices.js";
-
 const Items = ref([]);
 const Genres = ref([])
 const Authors = ref([])
@@ -19,8 +18,7 @@ const snackbar = ref({
   color: "",
   text: "",
 });
-const dateMenu = ref(false)
-
+const dateMenu = ref(false);
 const filteredData = computed(() => {
   let data = Items.value;
   let keyword = searchQuery.value.toLowerCase();
@@ -75,7 +73,6 @@ async function updateItem(Item) {
     .catch((error) => {
       snackbar.value.value = true;
       snackbar.value.color = "red";
-      console.log(error)
       snackbar.value.text = "Issue Updating Book";
     })
     .finally(()=>{
