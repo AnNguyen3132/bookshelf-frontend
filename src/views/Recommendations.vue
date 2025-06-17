@@ -3,15 +3,19 @@ import { onMounted } from 'vue'
 import { ref, computed} from "vue";
 import LLMServices from "../services/LLMServices.js";
 import OwnedBooksServices from "../services/OwnedBooksServices.js";
+import WishlistBooksServices from "../services/WishlistBooksServices.js";
+import BookServices from "../services/BookServices.js";
 const OwnedBooks = ref([])
 const recommendedBooks = ref([])
 const isAddRecBook = ref(false);
 const selectedRecommendBook = ref({})
+const selectRecommendBookID = ref(0)
 const statusOptions = ref([]);
 const statusNameInput = ref("");
 const userData = JSON.parse(localStorage.getItem("user"));
 const pubDateMenu = ref(false);
 const purchDateMenu = ref(false);
+const isWishlist = ref(false);
 const token = userData.token || "";
 const snackbar = ref({
   value: false,
@@ -48,7 +52,6 @@ onMounted(async () => {
 });
 
 function getRecommendations() {
-  console.log(OwnedBooks.value);
   fetchOwnedBooks().then(() => {
     LLMServices.getRecommendations(OwnedBooks.value)
       .then((response) => {
@@ -68,7 +71,6 @@ async function fetchOwnedBooks() {
 }
 
 async function addOwnedBook(recBook, token) {
-  console.log(recBook.book.title);
   const selectedStatus = statusOptions.value.find(
     option => option.statusName === statusNameInput.value
   );
@@ -88,7 +90,9 @@ async function addOwnedBook(recBook, token) {
     link: recBook.book.link,
     numPages: recBook.book.numPages,
     publicationDate: recBook.book.publicationDate,
-    readingStatusTypesId: statusId
+    readingStatusTypesId: statusId,
+    score: recBook.bookRating.score,
+    description: recBook.bookRating.description
   };
 
   await OwnedBooksServices.addOwnedBook(addPayload, token)
@@ -109,8 +113,48 @@ async function addOwnedBook(recBook, token) {
     });
 };
 
-function openAddRecommendBook(recommendedBook) {
-    
+async function addWishListBooks(recBook) {
+  const addPayload = {
+    bookId: selectRecommendBookID.value,
+    dateAdded: recBook.dateBought
+  };
+  await WishlistBooksServices.addWishlistBook(addPayload, token)
+    .then(() => {
+      snackbar.value.value = true;
+      snackbar.value.color = "green";
+      snackbar.value.text = "Book Wishlisted";
+      isAddRecBook.value = false;
+    })
+    .catch((error) => {
+      snackbar.value.value = true;
+      snackbar.value.color = "red";
+      snackbar.value.text = "Issue Wishlisting Book";
+    });
+  
+}
+
+async function addItem(recBook) {
+  const addPayload = {
+    title: recBook.book.title,
+    numPages: recBook.book.numPages,
+    publicationDate: recBook.book.publicationDate,
+    link: recBook.book.link
+  };
+  await BookServices.addBook(addPayload)
+    .then((response) => {
+      selectRecommendBookID.value = response.data.id;
+      addWishListBooks(recBook);
+    })
+    .catch((error) => {
+      snackbar.value.value = true;
+      snackbar.value.color = "red";
+      snackbar.value.text = "Issue Creating Book";
+    });
+};
+
+
+function openAddRecommendBook(recommendedBook, wishlistStatus) {
+  isWishlist.value = wishlistStatus;
   selectedRecommendBook.value = {
     book: {
       title: recommendedBook.book,
@@ -119,10 +163,18 @@ function openAddRecommendBook(recommendedBook) {
       link: ''
     },
     paidAmount: '',
+    author: [recommendedBook.author],
+    publisher: [recommendedBook.publisher],
     dateBought: '',
     userNotes: '',
     readingStatusTypesId: null,
-    ReadingStatusType: { statusName: '' }
+    ReadingStatusType: {
+      statusName: ''  
+    },
+    bookRating: {
+      score: null,
+      description: ''
+    }
   };
   statusNameInput.value = 'To Read';
   isAddRecBook.value = true;
@@ -153,9 +205,9 @@ function closeSnackBar() {
       <td class = "cursor-pointer" >{{recommendedBook.book}}</td>
       <td class = "cursor-pointer" >{{recommendedBook.author }}</td>
       <td class = "cursor-pointer" >{{recommendedBook.publisher }}</td>
-      <td>
-        <v-icon color="red" class="cursor-pointer" @click="openAddRecommendBook(recommendedBook)"> mdi-plus </v-icon>
-      </td>
+      <v-icon color="red" class="cursor-pointer" @click="openAddRecommendBook(recommendedBook, false)"> mdi-plus </v-icon>
+      |
+      <v-icon color="red" class="cursor-pointer" @click="openAddRecommendBook(recommendedBook, true)"> mdi-star </v-icon>
     </tr>
   </tbody>
   </v-table>
@@ -183,7 +235,20 @@ function closeSnackBar() {
           required
         ></v-text-field>
 
+        <v-text-field
+          v-model="selectedRecommendBook.author"
+          label="Author"
+          required
+        ></v-text-field>
+
+        <v-text-field
+          v-model="selectedRecommendBook.publisher"
+          label="Publisher"
+          required
+        ></v-text-field>
+
         <v-menu
+          v-if = "!isWishlist"
           v-model="pubDateMenu"
           :close-on-content-click="false"
           transition="scale-transition"
@@ -211,16 +276,19 @@ function closeSnackBar() {
         </v-menu>
 
         <v-text-field
+          v-if = "isWishlist"
           v-model="selectedRecommendBook.book.numPages"
           label="Number of Pages"
         ></v-text-field>
 
         <v-text-field
+          v-if = "isWishlist"
           v-model="selectedRecommendBook.book.link"
           label="Amazon Link"
         />
 
         <v-text-field
+          v-if = "isWishlist"
           v-model="selectedRecommendBook.paidAmount"
           label="Purchase Price"
         ></v-text-field>
@@ -253,6 +321,7 @@ function closeSnackBar() {
         </v-menu>
 
         <v-combobox
+          v-if = "!isWishlist"
           v-model="statusNameInput"
           :items="statusOptions.map(option => option.statusName)"
           item-title="statusName"
@@ -261,8 +330,24 @@ function closeSnackBar() {
         />
 
         <v-textarea
+          v-if = "!isWishlist"
           v-model="selectedRecommendBook.userNotes"
           label="Notes"
+          rows="4"
+          auto-grow
+          outlined
+        ></v-textarea>
+
+        <v-number-input control-variant="default"
+          v-if = "!isWishlist"
+          v-model="selectedRecommendBook.bookRating.score"
+          label="Rating (1-10)"
+        ></v-number-input>
+
+        <v-textarea
+          v-if = "!isWishlist"
+          v-model="selectedRecommendBook.bookRating.description"
+          label="Rating Description"
           rows="4"
           auto-grow
           outlined
@@ -277,8 +362,12 @@ function closeSnackBar() {
           @click="closeAddRecBook()"
           >Close</v-btn
         >
-        <v-btn variant="flat" color="primary" @click="addOwnedBook(selectedRecommendBook, token)"
+        <v-btn v-if = "!isWishlist" variant="flat" color="primary" @click="addOwnedBook(selectedRecommendBook, token)"
           >Add Book</v-btn
+        >
+
+        <v-btn v-if = "isWishlist" variant="flat" color="primary" @click="addItem(selectedRecommendBook)"
+          >Wishlist Book</v-btn
         >
       </v-card-actions>
     </v-card>
