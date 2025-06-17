@@ -13,6 +13,7 @@ const selectedItem = ref({});
 const isUpdateItem = ref(false);
 const addItemCheck = ref(false);
 const searchQuery = ref('');
+const user = ref({});
 const snackbar = ref({
   value: false,
   color: "",
@@ -35,9 +36,10 @@ const filteredData = computed(() => {
   return data
 })
 
-onMounted(async () => {
+onMounted(() => {
   try {
-    fetchData()
+    fetchData();
+    user.value = JSON.parse(localStorage.getItem("user"));
   } catch (error) {
     console.error("Cannot Fetch Authors: ", error)
   }
@@ -190,7 +192,7 @@ function selectableItems(selectedItems,dataArray){
   </v-table>
   <v-card-actions>
     <v-spacer></v-spacer>
-    <v-btn variant="flat" color="primary" @click="openUpdateItem(item, true)">Add Book</v-btn>
+    <v-btn v-if="user.role === 1" variant="flat" color="primary" @click="openUpdateItem(item, true)">Add Book</v-btn>
   </v-card-actions>
 
    <v-dialog persistent v-model="isUpdateItem" width="800">
